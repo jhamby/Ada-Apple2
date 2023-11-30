@@ -1,0 +1,9 @@
+name = "apple2"
+description = "Apple 2e emulator ported from C++"
+version = "0.1.0-dev"
+
+authors = ["Jake Hamby"]
+maintainers = ["Jake Hamby <jake.hamby@gmail.com>"]
+maintainers-logins = ["jhamby"]
+
+executables = ["Apple2"]

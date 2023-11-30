@@ -11,3 +11,7 @@ res/charset*.xpm
 *.swp
 *.swo
 *.orig
+/obj/
+/bin/
+/alire/
+/config/
