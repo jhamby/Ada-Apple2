@@ -24,14 +24,14 @@ pragma SPARK_Mode;
 
 package Apple2.Joystick is
 
-   procedure Joy_Read_Button (Address : Address_16_Bit;
-                              Read_Value : out Value_8_Bit;
-                              Cycles_Left : Natural);
+   procedure Joy_Read_Button
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
+      Cycles_Left : Natural);
    --  Read joystick button (in high bit)
 
-   procedure Joy_Read_Position (Address : Address_16_Bit;
-                                Read_Value : out Value_8_Bit;
-                                Cycles_Left : Natural);
+   procedure Joy_Read_Position
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
+      Cycles_Left : Natural);
    --  Read joystick position (paddle controller active in high bit)
 
    procedure Joy_Reset_Position (Cycles_Left : Natural);

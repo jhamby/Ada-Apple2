@@ -30,7 +30,7 @@ package Apple2 is
    pragma Provide_Shift_Operators (Value_8_Bit);
    --  GNAT pragma to provide shift and rotate functions
 
-   type Address_16_Bit is mod 2 ** 16;
+   type Address_16_Bit is mod 2**16;
    --  16-bit memory address or address range size in emulated address space
 
    pragma Provide_Shift_Operators (Address_16_Bit);
@@ -39,7 +39,7 @@ package Apple2 is
    type Value_4_Bit is mod 16;
    --  4-bit range for case statements over 16-byte ranges
 
-   type Value_32_Bit is mod 2 ** 32;
+   type Value_32_Bit is mod 2**32;
    --  32-bit unsigned value
 
    pragma Provide_Shift_Operators (Value_32_Bit);
@@ -63,9 +63,9 @@ package Apple2 is
    type Mem_Bank_Access is access all Mem_Bank_64K;
    --  Access type for a 64K bank of memory
 
-   Cx_ROM_Size : constant := 4 * 1024;
+   Cx_ROM_Size : constant := 4 * 1_024;
 
-   Apple_2_ROM_Size : constant := 12 * 1024;
+   Apple_2_ROM_Size : constant := 12 * 1_024;
 
    Apple_2e_ROM_Size : constant := Apple_2_ROM_Size + Cx_ROM_Size;
 
@@ -75,7 +75,7 @@ package Apple2 is
    Clock_6502 : constant Long_Float := (M14 * 65.0) / 912.0;
    --  65 cycles per 912 14M clocks
 
-   Clock_Z80  : constant Long_Float := Clock_6502 * 2.0;
+   Clock_Z80 : constant Long_Float := Clock_6502 * 2.0;
    --  effective Z80 clock rate is 2.041 MHz
 
    Cycles_Per_Line : constant := 65;

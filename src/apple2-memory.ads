@@ -43,13 +43,13 @@ package Apple2.Memory is
    function "+" (L, R : Mem_Flag_Type) return Mem_Flag_Type;
    --  Combine flag L with flag R
 
-   Apple_Slot_Size  : constant Address_16_Bit := 16#0100#;
+   Apple_Slot_Size : constant Address_16_Bit := 16#0100#;
    --  1 page = $Cx00 .. $CxFF (slot 1 .. 7)
 
    Apple_Slot_Begin : constant Address_16_Bit := 16#C100#;
    --  each slot has 1 page reserved for it
 
-   Apple_Slot_End   : constant Address_16_Bit := 16#C7FF#;
+   Apple_Slot_End : constant Address_16_Bit := 16#C7FF#;
    --  end of slot address range
 
    Firmware_Expansion_Size : constant Address_16_Bit := 16#0800#;
@@ -58,7 +58,7 @@ package Apple2.Memory is
    Firmware_Expansion_Begin : constant Address_16_Bit := 16#C800#;
    --  [C800,CFFF)
 
-   Firmware_Expansion_End   : constant Address_16_Bit := 16#CFFF#;
+   Firmware_Expansion_End : constant Address_16_Bit := 16#CFFF#;
    --  End of I/O address range
 
    RAM_Works_Num_Pages : constant := 128;
@@ -101,8 +101,8 @@ package Apple2.Memory is
    procedure Mem_Set_Mode (Mode : Mem_Flag_Type);
    --  Set current memory mode flags
 
-   function Mem_Is_Address_Code_Memory (Address : Address_16_Bit)
-                                        return Boolean;
+   function Mem_Is_Address_Code_Memory
+     (Address : Address_16_Bit) return Boolean;
    --  Returns whether the address contains RAM or something else.
    --   True:  code memory
    --   False: I/O memory or floating bus
@@ -118,7 +118,7 @@ package Apple2.Memory is
    --  Read floating bus address and advance cycle counter
 
    procedure Mem_Read_Floating_Bus
-     (High_Bit : Boolean; Read_Value : out Value_8_Bit;
+     (High_Bit        : Boolean; Read_Value : out Value_8_Bit;
       Executed_Cycles : Natural);
    --  Read floating bus address, replacing high bit of result
 
@@ -129,8 +129,7 @@ package Apple2.Memory is
    --    Soft-reset (Ctrl+Reset)
    --    Snapshot_Load_State()
 
-   function Mem_Read_Random_Data
-     (High_Bit : Boolean) return Value_8_Bit;
+   function Mem_Read_Random_Data (High_Bit : Boolean) return Value_8_Bit;
    --  Read random bus data and replace high bit with specified value
    --  Called by Disk ][ I/O only
 
@@ -148,8 +147,8 @@ package Apple2.Memory is
    procedure Mem_Set_Snapshot (Snapshot : Snapshot_Base_Memory);
    --  Restore snapshot of main and aux RAM
 
-   procedure IO_Read_Null (Read_Value : out Value_8_Bit;
-                           Cycles_Left : Natural);
+   procedure IO_Read_Null
+     (Read_Value : out Value_8_Bit; Cycles_Left : Natural);
    --  Default I/O read procedure (count cycles, read floating bus)
 
    procedure IO_Write_Null (Cycles_Left : Natural);
@@ -159,8 +158,8 @@ package Apple2.Memory is
      (Initialize : Boolean; Update_Write_Only : Boolean);
    --  Update paging indices
 
-   procedure Mem_Check_Paging (Address : Address_16_Bit;
-                               Read_Value : out Value_8_Bit);
+   procedure Mem_Check_Paging
+     (Address : Address_16_Bit; Read_Value : out Value_8_Bit);
    --  Read byte containing paging mode and keyboard scan code
 
    function Mem_Get_Write_Page (Page : Value_8_Bit) return Mem_Page_Access;

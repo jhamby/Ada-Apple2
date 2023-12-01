@@ -1,12 +1,10 @@
-pragma SPARK_Mode;
-
 --  Temporary Main procedure for initial testing
 
-with Ada.Assertions;    use Ada.Assertions;
+with Ada.Assertions; use Ada.Assertions;
 with Ada.Text_IO;
 
-with Apple2;            use Apple2;
-with Apple2.Memory;     use Apple2.Memory;
+with Apple2;        use Apple2;
+with Apple2.Memory; use Apple2.Memory;
 
 procedure Main is
    procedure Print_Type;
@@ -20,9 +18,9 @@ procedure Main is
       end if;
    end Print_Type;
 
-   Mem_Range_1 : Mem_Range_Access (16#2000# .. 16#4FFF#) := null;
-   Mem_Range_2 : Mem_Range_Access (16#4000# .. 16#6FFF#) := null;
-   IO_Read_Value            : Value_8_Bit      := 0;
+   Mem_Range_1   : Mem_Range_Access (16#2000# .. 16#4FFF#) := null;
+   Mem_Range_2   : Mem_Range_Access (16#4000# .. 16#6FFF#) := null;
+   IO_Read_Value : Value_8_Bit                             := 0;
 begin
    --  Default type should be Apple IIe Enhanced
    Print_Type;

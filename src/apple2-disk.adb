@@ -29,8 +29,9 @@ package body Apple2.Disk is
    ------------------
 
    procedure Disk_IO_Read
-     (Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (Address, Cycles_Left);
    begin
       Read_Value := 0;  --  TODO: add implementation
@@ -41,8 +42,9 @@ package body Apple2.Disk is
    -------------------
 
    procedure Disk_IO_Write
-     (Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+     (Address     : Address_16_Bit; Write_Value : Value_8_Bit;
+      Cycles_Left : Natural)
+   is
    begin
       null;  --  TODO: add implementation
    end Disk_IO_Write;

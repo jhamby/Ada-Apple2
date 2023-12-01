@@ -28,9 +28,10 @@ package body Apple2.Joystick is
    -- Joy_Read_Button --
    ---------------------
 
-   procedure Joy_Read_Button (Address : Address_16_Bit;
-                              Read_Value : out Value_8_Bit;
-                              Cycles_Left : Natural) is
+   procedure Joy_Read_Button
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (Address, Cycles_Left);
    begin
       Read_Value := 0;  --  TODO: add implementation
@@ -40,9 +41,10 @@ package body Apple2.Joystick is
    -- Joy_Read_Position --
    -----------------------
 
-   procedure Joy_Read_Position (Address : Address_16_Bit;
-                                Read_Value : out Value_8_Bit;
-                                Cycles_Left : Natural) is
+   procedure Joy_Read_Position
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (Address, Cycles_Left);
    begin
       Read_Value := 0;  --  TODO: add implementation

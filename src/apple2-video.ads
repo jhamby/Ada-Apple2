@@ -30,19 +30,19 @@ package Apple2.Video is
    procedure Video_Set_Mode (Address : Address_16_Bit);
    --  Set the video mode based on memory address accessed
 
-   procedure Video_Check_VBL (Read_Value : out Value_8_Bit;
-                              Cycles_Left : Natural);
+   procedure Video_Check_VBL
+     (Read_Value : out Value_8_Bit; Cycles_Left : Natural);
    --  Return byte with keycode OR'd with VBL status in high bit
 
-   procedure Video_Check_Mode (Address : Address_16_Bit;
-                               Read_Value : out Value_8_Bit;
-                               Cycles_Left : Natural);
+   procedure Video_Check_Mode
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
+      Cycles_Left : Natural);
    --  Return byte with keycode OR'd with video mode in high bit.
    --  For address $xx7F, return floating bus OR'd with double hires mode.
 
-   procedure Video_Get_Scanner_Address (Executed_Cycles : Natural;
-                                        VBL_Bar : out Boolean;
-                                        Address : out Address_16_Bit);
+   procedure Video_Get_Scanner_Address
+     (Executed_Cycles :     Natural; VBL_Bar : out Boolean;
+      Address         : out Address_16_Bit);
    --  Get video scanner address and VBL' state
 
 end Apple2.Video;

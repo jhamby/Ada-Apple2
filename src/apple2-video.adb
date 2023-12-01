@@ -26,19 +26,19 @@ package body Apple2.Video is
 
    type Video_Flag_Type is mod 2**16;
 
-   Vid_Flag_No_Flags    : constant Video_Flag_Type := 16#0000#;
-   Vid_Flag_80_Column   : constant Video_Flag_Type := 16#0001#;
-   Vid_Flag_Dbl_Hires   : constant Video_Flag_Type := 16#0002#;
+   Vid_Flag_No_Flags  : constant Video_Flag_Type := 16#0000#;
+   Vid_Flag_80_Column : constant Video_Flag_Type := 16#0001#;
+   Vid_Flag_Dbl_Hires : constant Video_Flag_Type := 16#0002#;
    pragma Unreferenced (Vid_Flag_Dbl_Hires);
-   Vid_Flag_Hires       : constant Video_Flag_Type := 16#0004#;
+   Vid_Flag_Hires : constant Video_Flag_Type := 16#0004#;
    pragma Unreferenced (Vid_Flag_Hires);
-   Vid_Flag_Mask_2      : constant Video_Flag_Type := 16#0008#;
+   Vid_Flag_Mask_2 : constant Video_Flag_Type := 16#0008#;
    pragma Unreferenced (Vid_Flag_Mask_2);
-   Vid_Flag_Mixed       : constant Video_Flag_Type := 16#0010#;
+   Vid_Flag_Mixed : constant Video_Flag_Type := 16#0010#;
    pragma Unreferenced (Vid_Flag_Mixed);
-   Vid_Flag_Page_2      : constant Video_Flag_Type := 16#0020#;
+   Vid_Flag_Page_2 : constant Video_Flag_Type := 16#0020#;
    pragma Unreferenced (Vid_Flag_Page_2);
-   Vid_Flag_Text        : constant Video_Flag_Type := 16#0040#;
+   Vid_Flag_Text : constant Video_Flag_Type := 16#0040#;
    pragma Unreferenced (Vid_Flag_Text);
 
    Video_Mode : constant Video_Flag_Type := Vid_Flag_No_Flags;
@@ -66,8 +66,9 @@ package body Apple2.Video is
    -- Video_Check_VBL --
    ---------------------
 
-   procedure Video_Check_VBL (Read_Value : out Value_8_Bit;
-                              Cycles_Left : Natural) is
+   procedure Video_Check_VBL
+     (Read_Value : out Value_8_Bit; Cycles_Left : Natural)
+   is
       pragma Unreferenced (Cycles_Left);
    begin
       Read_Value := 0;  --  TODO: add implementation
@@ -77,9 +78,10 @@ package body Apple2.Video is
    -- Video_Check_Mode --
    ----------------------
 
-   procedure Video_Check_Mode (Address : Address_16_Bit;
-                               Read_Value : out Value_8_Bit;
-                               Cycles_Left : Natural) is
+   procedure Video_Check_Mode
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (Address, Cycles_Left);
    begin
       Read_Value := 0;  --  TODO: add implementation
@@ -89,9 +91,10 @@ package body Apple2.Video is
    -- Video_Get_Scanner_Address --
    -------------------------------
 
-   procedure Video_Get_Scanner_Address (Executed_Cycles : Natural;
-                                        VBL_Bar : out Boolean;
-                                        Address : out Address_16_Bit) is
+   procedure Video_Get_Scanner_Address
+     (Executed_Cycles :     Natural; VBL_Bar : out Boolean;
+      Address         : out Address_16_Bit)
+   is
       pragma Unreferenced (Executed_Cycles);
    begin
       VBL_Bar := False;  --  TODO: add implementation

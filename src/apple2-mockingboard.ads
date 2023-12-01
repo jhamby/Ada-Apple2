@@ -28,12 +28,12 @@ package Apple2.Mockingboard is
    --  Read or write Mockingboard / Phasor I/O space ($C0xx)
 
    procedure MB_Read
-     (Address : Address_16_Bit; Read_Value : out Value_8_Bit;
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
       Cycles_Left : Natural);
    --  Read from Mockingboard / Phasor I/O space ($Cxxx)
 
    procedure MB_Write
-     (Address : Address_16_Bit; Write_Value : Value_8_Bit;
+     (Address     : Address_16_Bit; Write_Value : Value_8_Bit;
       Cycles_Left : Natural);
    --  Write to Mockingboard / Phasor I/O space ($Cxxx)
 

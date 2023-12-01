@@ -25,12 +25,12 @@ pragma SPARK_Mode;
 package Apple2.Disk is
 
    procedure Disk_IO_Read
-     (Address : Address_16_Bit; Read_Value : out Value_8_Bit;
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
       Cycles_Left : Natural);
    --  Read from the Disk ][ I/O space
 
    procedure Disk_IO_Write
-     (Address : Address_16_Bit; Write_Value : Value_8_Bit;
+     (Address     : Address_16_Bit; Write_Value : Value_8_Bit;
       Cycles_Left : Natural);
    --  Write to the Disk ][ I/O space
 

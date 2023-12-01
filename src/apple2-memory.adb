@@ -46,8 +46,7 @@ with Apple2.Video;        use Apple2.Video;
 
 package body Apple2.Memory is
 
-   Mem_Dirty : array (Value_8_Bit) of Value_8_Bit :=
-     (others => 0);
+   Mem_Dirty : array (Value_8_Bit) of Value_8_Bit := (others => 0);
    --  page dirty flags (accessed from Memory and Video)
 
    type Mem_Page_Access_Table is array (Value_8_Bit) of Mem_Page_Access;
@@ -72,15 +71,15 @@ package body Apple2.Memory is
    Cx_ROM_Peripheral : aliased Mem_Range (0 .. Cx_ROM_Size - 1) :=
      (others => 0);
 
-   RAM_Works_Pages : array (RAM_Works_Bank_Range) of aliased
-     Mem_Bank_64K := (others => (others => 0));
+   RAM_Works_Pages : array (RAM_Works_Bank_Range) of aliased Mem_Bank_64K :=
+     (others => (others => 0));
    --  RAMWorks III array of 64K RAM pages (page 0 is default Mem_Aux)
 
    Mem_Aux : access Mem_Bank_64K := RAM_Works_Pages (0)'Access;
    --  Access to 64K aux RAM or RAMWorks III page
 
-   Mem_Mode : Mem_Flag_Type := Flag_High_RAM_Bank_2 or Flag_Slot_CX_ROM or
-     Flag_High_RAM_Write;
+   Mem_Mode : Mem_Flag_Type :=
+     Flag_High_RAM_Bank_2 or Flag_Slot_CX_ROM or Flag_High_RAM_Write;
    --  Initial memory mode flags
 
    Mode_Changing : Boolean := False;
@@ -257,8 +256,8 @@ package body Apple2.Memory is
    -- IO_Read_Null --
    ------------------
 
-   procedure IO_Read_Null (Read_Value : out Value_8_Bit;
-                           Cycles_Left : Natural) is
+   procedure IO_Read_Null (Read_Value : out Value_8_Bit; Cycles_Left : Natural)
+   is
    begin
       Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
    end IO_Read_Null;
@@ -279,7 +278,8 @@ package body Apple2.Memory is
 
    procedure IO_Read_Annunciator
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address);
    begin
       --  Apple //e ROM:
@@ -297,7 +297,8 @@ package body Apple2.Memory is
 
    procedure IO_Write_Annunciator
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address, Write_Value);
    begin
       CPU_Calc_Cycles (Cycles_Left);
@@ -309,7 +310,8 @@ package body Apple2.Memory is
 
    procedure IO_Read_C00x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address, Cycles_Left);
    begin
       Keyb_Read_Data (Read_Value);
@@ -321,12 +323,12 @@ package body Apple2.Memory is
 
    procedure IO_Write_C00x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       Ignore : Value_8_Bit;  --  ignore read value
    begin
       if (Address and 16#0F#) <= 16#0B# then
-         Mem_Set_Paging (PC, Address, True, Write_Value, Ignore,
-                         Cycles_Left);
+         Mem_Set_Paging (PC, Address, True, Write_Value, Ignore, Cycles_Left);
       else
          Video_Set_Mode (Address);
       end if;
@@ -338,22 +340,23 @@ package body Apple2.Memory is
 
    procedure IO_Read_C01x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC);
       Offset : constant Value_4_Bit := Value_4_Bit (Address and 16#0F#);
    begin
       case Offset is
-      when 16#00# =>
-         Keyb_Read_Flag (Read_Value);
+         when 16#00# =>
+            Keyb_Read_Flag (Read_Value);
 
-      when 16#01# .. 16#08# | 16#0C# .. 16#0D# =>
-         Mem_Check_Paging (Address, Read_Value);
+         when 16#01# .. 16#08# | 16#0C# .. 16#0D# =>
+            Mem_Check_Paging (Address, Read_Value);
 
-      when 16#09# =>
-         Video_Check_VBL (Read_Value, Cycles_Left);
+         when 16#09# =>
+            Video_Check_VBL (Read_Value, Cycles_Left);
 
-      when 16#0A# .. 16#0B# | 16#0E# .. 16#0F# =>
-         Video_Check_Mode (Address, Read_Value, Cycles_Left);
+         when 16#0A# .. 16#0B# | 16#0E# .. 16#0F# =>
+            Video_Check_Mode (Address, Read_Value, Cycles_Left);
 
       end case;
    end IO_Read_C01x;
@@ -364,7 +367,8 @@ package body Apple2.Memory is
 
    procedure IO_Write_C01x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address, Write_Value, Cycles_Left);
       Ignore : Value_8_Bit;  --  ignore read value
    begin
@@ -377,7 +381,8 @@ package body Apple2.Memory is
 
    procedure IO_Read_C02x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address);
    begin
       Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
@@ -389,7 +394,8 @@ package body Apple2.Memory is
 
    procedure IO_Write_C02x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
    begin
       null;
    end IO_Write_C02x;
@@ -400,7 +406,8 @@ package body Apple2.Memory is
 
    procedure IO_Read_C03x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address);
    begin
       Read_Value := 0;
@@ -413,7 +420,8 @@ package body Apple2.Memory is
 
    procedure IO_Write_C03x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address, Write_Value);
    begin
       Spkr_Toggle (Cycles_Left);
@@ -425,7 +433,8 @@ package body Apple2.Memory is
 
    procedure IO_Read_C04x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC, Address);
    begin
       Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
@@ -437,7 +446,8 @@ package body Apple2.Memory is
 
    procedure IO_Write_C04x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
    begin
       null;
    end IO_Write_C04x;
@@ -448,19 +458,20 @@ package body Apple2.Memory is
 
    procedure IO_Read_C05x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       Offset : constant Value_4_Bit := Value_4_Bit (Address and 16#0F#);
    begin
       case Offset is
-      when 16#00# .. 16#03# | 16#0E# .. 16#0F# =>
-         Video_Set_Mode (Address);
-         Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
+         when 16#00# .. 16#03# | 16#0E# .. 16#0F# =>
+            Video_Set_Mode (Address);
+            Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
 
-      when 16#04# .. 16#07# =>
-         Mem_Set_Paging (PC, Address, False, 0, Read_Value, Cycles_Left);
+         when 16#04# .. 16#07# =>
+            Mem_Set_Paging (PC, Address, False, 0, Read_Value, Cycles_Left);
 
-      when 16#08# .. 16#0D# =>
-         IO_Read_Annunciator (PC, Address, Read_Value, Cycles_Left);
+         when 16#08# .. 16#0D# =>
+            IO_Read_Annunciator (PC, Address, Read_Value, Cycles_Left);
 
       end case;
    end IO_Read_C05x;
@@ -471,19 +482,21 @@ package body Apple2.Memory is
 
    procedure IO_Write_C05x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       Ignore : Value_8_Bit;  --  ignore read value
       Offset : constant Value_4_Bit := Value_4_Bit (Address and 16#0F#);
    begin
       case Offset is
-      when 16#00# .. 16#03# | 16#0E# .. 16#0F# =>
-         Video_Set_Mode (Address);
+         when 16#00# .. 16#03# | 16#0E# .. 16#0F# =>
+            Video_Set_Mode (Address);
 
-      when 16#04# .. 16#07# =>
-         Mem_Set_Paging (PC, Address, True, Write_Value, Ignore, Cycles_Left);
+         when 16#04# .. 16#07# =>
+            Mem_Set_Paging
+              (PC, Address, True, Write_Value, Ignore, Cycles_Left);
 
-      when 16#08# .. 16#0D# =>
-         IO_Write_Annunciator (PC, Address, Write_Value, Cycles_Left);
+         when 16#08# .. 16#0D# =>
+            IO_Write_Annunciator (PC, Address, Write_Value, Cycles_Left);
 
       end case;
    end IO_Write_C05x;
@@ -494,19 +507,20 @@ package body Apple2.Memory is
 
    procedure IO_Read_C06x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC);
       Offset : constant Value_4_Bit := Value_4_Bit (Address and 16#0F#);
    begin
       case Offset is
-      when 16#00# | 16#08# .. 16#0F# =>
-         IO_Read_Null (Read_Value, Cycles_Left);
+         when 16#00# | 16#08# .. 16#0F# =>
+            IO_Read_Null (Read_Value, Cycles_Left);
 
-      when 16#01# .. 16#03# =>
-         Joy_Read_Button (Address, Read_Value, Cycles_Left);
+         when 16#01# .. 16#03# =>
+            Joy_Read_Button (Address, Read_Value, Cycles_Left);
 
-      when 16#04# .. 16#07# =>
-         Joy_Read_Position (Address, Read_Value, Cycles_Left);
+         when 16#04# .. 16#07# =>
+            Joy_Read_Position (Address, Read_Value, Cycles_Left);
 
       end case;
    end IO_Read_C06x;
@@ -517,7 +531,8 @@ package body Apple2.Memory is
 
    procedure IO_Write_C06x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
    begin
       null;
    end IO_Write_C06x;
@@ -528,20 +543,21 @@ package body Apple2.Memory is
 
    procedure IO_Read_C07x
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC);
       Offset : constant Value_4_Bit := Value_4_Bit (Address and 16#0F#);
    begin
       case Offset is
-      when 16#00# =>
-         Joy_Reset_Position (Cycles_Left);
-         Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
+         when 16#00# =>
+            Joy_Reset_Position (Cycles_Left);
+            Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
 
-      when 16#01# .. 16#0E# =>
-         IO_Read_Null (Read_Value, Cycles_Left);
+         when 16#01# .. 16#0E# =>
+            IO_Read_Null (Read_Value, Cycles_Left);
 
-      when 16#0F# =>
-         Video_Check_Mode (Address, Read_Value, Cycles_Left);
+         when 16#0F# =>
+            Video_Check_Mode (Address, Read_Value, Cycles_Left);
 
       end case;
    end IO_Read_C07x;
@@ -552,19 +568,21 @@ package body Apple2.Memory is
 
    procedure IO_Write_C07x
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       Ignore : Value_8_Bit;  --  ignore read value
       Offset : constant Value_4_Bit := Value_4_Bit (Address and 16#0F#);
    begin
       case Offset is
-      when 16#00# =>
-         Joy_Reset_Position (Cycles_Left);
+         when 16#00# =>
+            Joy_Reset_Position (Cycles_Left);
 
-      when 16#01# | 16#03# =>
-         Mem_Set_Paging (PC, Address, True, Write_Value, Ignore, Cycles_Left);
+         when 16#01# | 16#03# =>
+            Mem_Set_Paging
+              (PC, Address, True, Write_Value, Ignore, Cycles_Left);
 
-      when 16#02# | 16#04# .. 16#0F# =>
-         IO_Write_Null (Cycles_Left);
+         when 16#02# | 16#04# .. 16#0F# =>
+            IO_Write_Null (Cycles_Left);
 
       end case;
    end IO_Write_C07x;
@@ -575,60 +593,61 @@ package body Apple2.Memory is
 
    procedure Mem_IO_Read
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
-      Index : constant Value_8_Bit := Value_8_Bit (Shift_Right (Address, 4)
-                                                   and 16#FF#);
+      Cycles_Left : Natural)
+   is
+      Index : constant Value_8_Bit :=
+        Value_8_Bit (Shift_Right (Address, 4) and 16#FF#);
    begin
       --  The configuration is now hardcoded to enable SPARK static analysis.
       --  Hopefully it's not much slower than the original function pointers.
       case Index is
-      when 16#00# =>
-         IO_Read_C00x (PC, Address, Read_Value, Cycles_Left);
-      when 16#01# =>
-         IO_Read_C01x (PC, Address, Read_Value, Cycles_Left);
-      when 16#02# =>
-         IO_Read_C02x (PC, Address, Read_Value, Cycles_Left);
-      when 16#03# =>
-         IO_Read_C03x (PC, Address, Read_Value, Cycles_Left);
-      when 16#04# =>
-         IO_Read_C04x (PC, Address, Read_Value, Cycles_Left);
-      when 16#05# =>
-         IO_Read_C05x (PC, Address, Read_Value, Cycles_Left);
-      when 16#06# =>
-         IO_Read_C06x (PC, Address, Read_Value, Cycles_Left);
-      when 16#07# =>
-         IO_Read_C07x (PC, Address, Read_Value, Cycles_Left);
-      when 16#08# =>
-         --  slot 0
-         Mem_Set_Paging (PC, Address, False, 0, Read_Value, Cycles_Left);
-      when 16#09# =>
-         --  slot 1 (parallel printer card)
-         Print_Status (Read_Value);
-      when 16#0A# =>
-         --  slot 2 (super serial card)
-         SSC_Read (Address, Read_Value, Cycles_Left);
-      when 16#0B# =>
-         --  slot 3 (no card)
-         IO_Read_Null (Read_Value, Cycles_Left);
-      when 16#0C# =>
-         --  slot 4 (Mockingboard or mouse)
-         Phasor_IO (Address);
-         Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
-      when 16#0D# =>
-         --  slot 5 (Phasor sound card)
-         Phasor_IO (Address);
-         Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
-      when 16#0E# =>
-         --  slot 6 (Disk ][)
-         Disk_IO_Read (Address, Read_Value, Cycles_Left);
-      when 16#0F# =>
-         --  slot 7 (no card)
-         IO_Read_Null (Read_Value, Cycles_Left);
-      when 16#40# .. 16#5F# =>
-         --  slots 4 and 5 $Cxxx space (Mockingboard / Phasor)
-         MB_Read (Address, Read_Value, Cycles_Left);
-      when others =>
-         IO_Read_Cxxx (PC, Address, Read_Value, Cycles_Left);
+         when 16#00# =>
+            IO_Read_C00x (PC, Address, Read_Value, Cycles_Left);
+         when 16#01# =>
+            IO_Read_C01x (PC, Address, Read_Value, Cycles_Left);
+         when 16#02# =>
+            IO_Read_C02x (PC, Address, Read_Value, Cycles_Left);
+         when 16#03# =>
+            IO_Read_C03x (PC, Address, Read_Value, Cycles_Left);
+         when 16#04# =>
+            IO_Read_C04x (PC, Address, Read_Value, Cycles_Left);
+         when 16#05# =>
+            IO_Read_C05x (PC, Address, Read_Value, Cycles_Left);
+         when 16#06# =>
+            IO_Read_C06x (PC, Address, Read_Value, Cycles_Left);
+         when 16#07# =>
+            IO_Read_C07x (PC, Address, Read_Value, Cycles_Left);
+         when 16#08# =>
+            --  slot 0
+            Mem_Set_Paging (PC, Address, False, 0, Read_Value, Cycles_Left);
+         when 16#09# =>
+            --  slot 1 (parallel printer card)
+            Print_Status (Read_Value);
+         when 16#0A# =>
+            --  slot 2 (super serial card)
+            SSC_Read (Address, Read_Value, Cycles_Left);
+         when 16#0B# =>
+            --  slot 3 (no card)
+            IO_Read_Null (Read_Value, Cycles_Left);
+         when 16#0C# =>
+            --  slot 4 (Mockingboard or mouse)
+            Phasor_IO (Address);
+            Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
+         when 16#0D# =>
+            --  slot 5 (Phasor sound card)
+            Phasor_IO (Address);
+            Mem_Read_Floating_Bus (Read_Value, Cycles_Left);
+         when 16#0E# =>
+            --  slot 6 (Disk ][)
+            Disk_IO_Read (Address, Read_Value, Cycles_Left);
+         when 16#0F# =>
+            --  slot 7 (no card)
+            IO_Read_Null (Read_Value, Cycles_Left);
+         when 16#40# .. 16#5F# =>
+            --  slots 4 and 5 $Cxxx space (Mockingboard / Phasor)
+            MB_Read (Address, Read_Value, Cycles_Left);
+         when others =>
+            IO_Read_Cxxx (PC, Address, Read_Value, Cycles_Left);
       end case;
    end Mem_IO_Read;
 
@@ -638,61 +657,63 @@ package body Apple2.Memory is
 
    procedure Mem_IO_Write
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
-      Index : constant Value_8_Bit := Value_8_Bit (Shift_Right (Address, 4)
-                                                   and 16#FF#);
+      Cycles_Left : Natural)
+   is
+      Index  : constant Value_8_Bit :=
+        Value_8_Bit (Shift_Right (Address, 4) and 16#FF#);
       Ignore : Value_8_Bit;  --  ignore read value
    begin
       --  The configuration is now hardcoded to enable SPARK static analysis.
       --  Hopefully it's not much slower than the original function pointers.
       case Index is
-      when 16#00# =>
-         IO_Write_C00x (PC, Address, Write_Value, Cycles_Left);
-      when 16#01# =>
-         IO_Write_C01x (PC, Address, Write_Value, Cycles_Left);
-      when 16#02# =>
-         IO_Write_C02x (PC, Address, Write_Value, Cycles_Left);
-      when 16#03# =>
-         IO_Write_C03x (PC, Address, Write_Value, Cycles_Left);
-      when 16#04# =>
-         IO_Write_C04x (PC, Address, Write_Value, Cycles_Left);
-      when 16#05# =>
-         IO_Write_C05x (PC, Address, Write_Value, Cycles_Left);
-      when 16#06# =>
-         IO_Write_C06x (PC, Address, Write_Value, Cycles_Left);
-      when 16#07# =>
-         IO_Write_C07x (PC, Address, Write_Value, Cycles_Left);
-      when 16#08# =>
-         --  slot 0
-         Mem_Set_Paging (PC, Address, True, Write_Value, Ignore, Cycles_Left);
-      when 16#09# =>
-         --  slot 1 (parallel printer card)
-         Print_Transmit (Write_Value);
-      when 16#0A# =>
-         --  slot 2 (super serial card)
-         SSC_Write (Address, Write_Value, Cycles_Left);
-      when 16#0B# =>
-         --  slot 3 (no card)
-         IO_Write_Null (Cycles_Left);
-      when 16#0C# =>
-         --  slot 4 (Mockingboard or mouse)
-         Phasor_IO (Address);
-         CPU_Calc_Cycles (Cycles_Left);
-      when 16#0D# =>
-         --  slot 5 (Phasor sound card)
-         Phasor_IO (Address);
-         CPU_Calc_Cycles (Cycles_Left);
-      when 16#0E# =>
-         --  slot 6 (Disk ][)
-         Disk_IO_Write (Address, Write_Value, Cycles_Left);
-      when 16#0F# =>
-         --  slot 7 (no card)
-         IO_Write_Null (Cycles_Left);
-      when 16#40# .. 16#5F# =>
-         --  slots 4 and 5 $Cxxx space (Mockingboard / Phasor)
-         MB_Write (Address, Write_Value, Cycles_Left);
-      when others =>
-         IO_Write_Cxxx (PC, Address, Write_Value, Cycles_Left);
+         when 16#00# =>
+            IO_Write_C00x (PC, Address, Write_Value, Cycles_Left);
+         when 16#01# =>
+            IO_Write_C01x (PC, Address, Write_Value, Cycles_Left);
+         when 16#02# =>
+            IO_Write_C02x (PC, Address, Write_Value, Cycles_Left);
+         when 16#03# =>
+            IO_Write_C03x (PC, Address, Write_Value, Cycles_Left);
+         when 16#04# =>
+            IO_Write_C04x (PC, Address, Write_Value, Cycles_Left);
+         when 16#05# =>
+            IO_Write_C05x (PC, Address, Write_Value, Cycles_Left);
+         when 16#06# =>
+            IO_Write_C06x (PC, Address, Write_Value, Cycles_Left);
+         when 16#07# =>
+            IO_Write_C07x (PC, Address, Write_Value, Cycles_Left);
+         when 16#08# =>
+            --  slot 0
+            Mem_Set_Paging
+              (PC, Address, True, Write_Value, Ignore, Cycles_Left);
+         when 16#09# =>
+            --  slot 1 (parallel printer card)
+            Print_Transmit (Write_Value);
+         when 16#0A# =>
+            --  slot 2 (super serial card)
+            SSC_Write (Address, Write_Value, Cycles_Left);
+         when 16#0B# =>
+            --  slot 3 (no card)
+            IO_Write_Null (Cycles_Left);
+         when 16#0C# =>
+            --  slot 4 (Mockingboard or mouse)
+            Phasor_IO (Address);
+            CPU_Calc_Cycles (Cycles_Left);
+         when 16#0D# =>
+            --  slot 5 (Phasor sound card)
+            Phasor_IO (Address);
+            CPU_Calc_Cycles (Cycles_Left);
+         when 16#0E# =>
+            --  slot 6 (Disk ][)
+            Disk_IO_Write (Address, Write_Value, Cycles_Left);
+         when 16#0F# =>
+            --  slot 7 (no card)
+            IO_Write_Null (Cycles_Left);
+         when 16#40# .. 16#5F# =>
+            --  slots 4 and 5 $Cxxx space (Mockingboard / Phasor)
+            MB_Write (Address, Write_Value, Cycles_Left);
+         when others =>
+            IO_Write_Cxxx (PC, Address, Write_Value, Cycles_Left);
       end case;
    end Mem_IO_Write;
 
@@ -801,24 +822,25 @@ package body Apple2.Memory is
 
    procedure IO_Read_Cxxx
      (PC, Address : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (PC);
       IO_Strobe : Boolean := False;
-      Slot : Slot_Range;
+      Slot      : Slot_Range;
    begin
       if Address = 16#CFFF# then
          --  Disable expansion ROM at [$C800..$CFFF]
          --  SSC will disable on an access to $CFxx, but ROM only writes to
          --  $CFFF, so it doesn't matter
-         IO_Select_Slot := 0;
+         IO_Select_Slot         := 0;
          IO_Select_Internal_ROM := False;
-         Peripheral_ROM_Slot := 0;
+         Peripheral_ROM_Slot    := 0;
 
          if Mode_Slot_CX_ROM then
             --  unset Slot_CX_ROM ensures that internal rom stays switched in
             Cx_ROM_Peripheral (16#0800# .. 16#0FFF#) := (others => 0);
-            Mem_Image (16#C800# .. 16#CFFF#) := (others => 0);
-            Expansion_ROM_Type := ROM_Null;
+            Mem_Image (16#C800# .. 16#CFFF#)         := (others => 0);
+            Expansion_ROM_Type                       := ROM_Null;
          end if;
          --  NB. IO_SELECT won't get set, so ROM won't be switched back in...
       end if;
@@ -844,9 +866,9 @@ package body Apple2.Memory is
                --  Note: add any other slots with expansion ROMs here
                Cx_ROM_Peripheral (16#0800# .. 16#0FFF#) := SSC_ROM;
                --  SSC is the only emulated card with an expansion ROM
-               Mem_Image (16#C800# .. 16#CFFF#) := SSC_ROM;
-               Expansion_ROM_Type := ROM_Peripheral;
-               Peripheral_ROM_Slot := Slot;
+               Mem_Image (16#C800# .. 16#CFFF#)         := SSC_ROM;
+               Expansion_ROM_Type                       := ROM_Peripheral;
+               Peripheral_ROM_Slot                      := Slot;
             end if;
          elsif IO_Select_Internal_ROM and IO_Strobe and
            Expansion_ROM_Type /= ROM_Internal
@@ -854,8 +876,8 @@ package body Apple2.Memory is
             --  Enable Internal ROM (get this for PR#3)
             Mem_Image (16#C800# .. 16#CFFF#) :=
               Cx_ROM_Internal (16#0800# .. 16#0FFF#);
-            Expansion_ROM_Type := ROM_Internal;
-            Peripheral_ROM_Slot := 0;
+            Expansion_ROM_Type               := ROM_Internal;
+            Peripheral_ROM_Slot              := 0;
          end if;
       end if;
 
@@ -870,14 +892,14 @@ package body Apple2.Memory is
             IO_Strobe := True;
          end if;
 
-         if not Mode_Slot_CX_ROM and IO_Select_Internal_ROM and
-           IO_Strobe and Expansion_ROM_Type /= ROM_Internal
+         if not Mode_Slot_CX_ROM and IO_Select_Internal_ROM and IO_Strobe and
+           Expansion_ROM_Type /= ROM_Internal
          then
             --  Enable Internal ROM
             Mem_Image (16#C800# .. 16#CFFF#) :=
               Cx_ROM_Internal (16#0800# .. 16#0FFF#);
-            Expansion_ROM_Type := ROM_Internal;
-            Peripheral_ROM_Slot := 0;
+            Expansion_ROM_Type               := ROM_Internal;
+            Peripheral_ROM_Slot              := 0;
          end if;
       end if;
 
@@ -894,7 +916,8 @@ package body Apple2.Memory is
 
    procedure IO_Write_Cxxx
      (PC, Address : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
    begin
       null;
    end IO_Write_Cxxx;
@@ -905,10 +928,10 @@ package body Apple2.Memory is
 
    procedure Init_IO_Handlers is
    begin
-      IO_Select_Slot := 0;
+      IO_Select_Slot         := 0;
       IO_Select_Internal_ROM := False;
-      Expansion_ROM_Type := ROM_Null;
-      Peripheral_ROM_Slot := 0;
+      Expansion_ROM_Type     := ROM_Null;
+      Peripheral_ROM_Slot    := 0;
    end Init_IO_Handlers;
 
    ------------------
@@ -945,8 +968,8 @@ package body Apple2.Memory is
    procedure Reset_Paging (Initialize : Boolean) is
    begin
       Last_Write_RAM := False;
-      Mem_Mode := Flag_High_RAM_Bank_2 or Flag_Slot_CX_ROM or
-        Flag_High_RAM_Write;
+      Mem_Mode       :=
+        Flag_High_RAM_Bank_2 or Flag_Slot_CX_ROM or Flag_High_RAM_Write;
       Mem_Update_Paging (Initialize, False);
    end Reset_Paging;
 
@@ -965,8 +988,8 @@ package body Apple2.Memory is
 
    procedure Mem_Update_Paging (Initialize, Update_Write_Only : Boolean) is
       Old_Shadow : Mem_Page_Access_Table;
-      Offset : Address_16_Bit;
-      Page : Mem_Page_Access;
+      Offset     : Address_16_Bit;
+      Page       : Mem_Page_Access;
    begin
       --  Save the current paging shadow table
       if not (Initialize or Update_Write_Only) then
@@ -976,7 +999,7 @@ package body Apple2.Memory is
       --  Update the paging tables based on the new paging switch values
       if Initialize then
          for I in Value_8_Bit (16#00#) .. Value_8_Bit (16#BF#) loop
-            Offset := Shift_Left (Address_16_Bit (I), 8);
+            Offset        := Shift_Left (Address_16_Bit (I), 8);
             Page := Mem_Image (Offset .. Offset + 255)'Unrestricted_Access;
             Mem_Write (I) := Page;
          end loop;
@@ -990,11 +1013,10 @@ package body Apple2.Memory is
          for I in Value_8_Bit (16#00#) .. Value_8_Bit (16#01#) loop
             Offset := Shift_Left (Address_16_Bit (I), 8);
             if Mode_Alt_ZP then
-               Page := Mem_Aux.all (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Page :=
+                 Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
             else
-               Page := Mem_Main (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Page := Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
             end if;
             Mem_Shadow (I) := Page;
          end loop;
@@ -1003,8 +1025,7 @@ package body Apple2.Memory is
       for I in Value_8_Bit (16#02#) .. Value_8_Bit (16#BF#) loop
          Offset := Shift_Left (Address_16_Bit (I), 8);
          if Mode_Aux_Read then
-            Page := Mem_Aux.all (Offset .. Offset + 255)
-              'Unrestricted_Access;
+            Page := Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
          else
             Page := Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
          end if;
@@ -1025,31 +1046,35 @@ package body Apple2.Memory is
             Offset := Shift_Left (Address_16_Bit (I and 16#0F#), 8);
             if I = 16#C3# then
                if Mode_Slot_C3_ROM and Mode_Slot_CX_ROM then
-                  Mem_Shadow (I) := Cx_ROM_Peripheral (Offset .. Offset + 255)
-                    'Unrestricted_Access;
+                  Mem_Shadow (I) :=
+                    Cx_ROM_Peripheral (Offset .. Offset + 255)'
+                      Unrestricted_Access;
                   --  C300..C3FF - Slot 3 ROM (all 0x00's)
                else
-                  Mem_Shadow (I) := Cx_ROM_Internal (Offset .. Offset + 255)
-                    'Unrestricted_Access;
+                  Mem_Shadow (I) :=
+                    Cx_ROM_Internal (Offset .. Offset + 255)'
+                      Unrestricted_Access;
                   --  C300..C3FF - Internal ROM
                end if;
             else
                if Mode_Slot_CX_ROM then
-                  Mem_Shadow (I) := Cx_ROM_Peripheral (Offset .. Offset + 255)
-                    'Unrestricted_Access;
+                  Mem_Shadow (I) :=
+                    Cx_ROM_Peripheral (Offset .. Offset + 255)'
+                      Unrestricted_Access;
                   --  C000..C7FF - SSC/Disk ][/etc
                else
-                  Mem_Shadow (I) := Cx_ROM_Internal (Offset .. Offset + 255)
-                    'Unrestricted_Access;
+                  Mem_Shadow (I) :=
+                    Cx_ROM_Internal (Offset .. Offset + 255)'
+                      Unrestricted_Access;
                   --  C000..C7FF - Internal ROM
                end if;
             end if;
          end loop;
 
          for I in Value_8_Bit (16#C8#) .. Value_8_Bit (16#CF#) loop
-            Offset := Shift_Left (Address_16_Bit (I and 16#0F#), 8);
-            Mem_Shadow (I) := Cx_ROM_Internal (Offset .. Offset + 255)
-              'Unrestricted_Access;
+            Offset         := Shift_Left (Address_16_Bit (I and 16#0F#), 8);
+            Mem_Shadow (I) :=
+              Cx_ROM_Internal (Offset .. Offset + 255)'Unrestricted_Access;
             --  C800..CFFF - Internal ROM
          end loop;
       end if;
@@ -1064,31 +1089,31 @@ package body Apple2.Memory is
          if Mode_High_RAM then
             Offset := Shift_Left (Address_16_Bit (I), 8) - Offset;
             if Mode_Alt_ZP then
-               Mem_Shadow (I) := Mem_Aux.all (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Shadow (I) :=
+                 Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
             else
-               Mem_Shadow (I) := Mem_Main (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Shadow (I) :=
+                 Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
             end if;
          else
-            Offset := Shift_Left (Address_16_Bit (I - 16#D0#), 8);
-            Mem_Shadow (I) := Mem_ROM (Offset .. Offset + 255)
-              'Unrestricted_Access;
+            Offset         := Shift_Left (Address_16_Bit (I - 16#D0#), 8);
+            Mem_Shadow (I) :=
+              Mem_ROM (Offset .. Offset + 255)'Unrestricted_Access;
          end if;
 
          if Mode_High_RAM_Write then
             if Mode_High_RAM then
-               Offset := Shift_Left (Address_16_Bit (I), 8);
-               Mem_Write (I) := Mem_Image (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Offset        := Shift_Left (Address_16_Bit (I), 8);
+               Mem_Write (I) :=
+                 Mem_Image (Offset .. Offset + 255)'Unrestricted_Access;
             elsif Mode_Alt_ZP then
-               Offset := Shift_Left (Address_16_Bit (I), 8) - Offset;
-               Mem_Write (I) := Mem_Aux.all (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Offset        := Shift_Left (Address_16_Bit (I), 8) - Offset;
+               Mem_Write (I) :=
+                 Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
             else
-               Offset := Shift_Left (Address_16_Bit (I), 8) - Offset;
-               Mem_Write (I) := Mem_Main (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Offset        := Shift_Left (Address_16_Bit (I), 8) - Offset;
+               Mem_Write (I) :=
+                 Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
             end if;
          else
             Mem_Write (I) := null;
@@ -1099,29 +1124,29 @@ package body Apple2.Memory is
          if Mode_High_RAM then
             Offset := Shift_Left (Address_16_Bit (I), 8);
             if Mode_Alt_ZP then
-               Mem_Shadow (I) := Mem_Aux.all (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Shadow (I) :=
+                 Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
             else
-               Mem_Shadow (I) := Mem_Main (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Shadow (I) :=
+                 Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
             end if;
          else
-            Offset := Shift_Left (Address_16_Bit (I - 16#D0#), 8);
-            Mem_Shadow (I) := Mem_ROM (Offset .. Offset + 255)
-              'Unrestricted_Access;
+            Offset         := Shift_Left (Address_16_Bit (I - 16#D0#), 8);
+            Mem_Shadow (I) :=
+              Mem_ROM (Offset .. Offset + 255)'Unrestricted_Access;
          end if;
 
          Offset := Shift_Left (Address_16_Bit (I), 8);
          if Mode_High_RAM_Write then
             if Mode_High_RAM then
-               Mem_Write (I) := Mem_Image (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Write (I) :=
+                 Mem_Image (Offset .. Offset + 255)'Unrestricted_Access;
             elsif Mode_Alt_ZP then
-               Mem_Write (I) := Mem_Aux.all (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Write (I) :=
+                 Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
             else
-               Mem_Write (I) := Mem_Main (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Write (I) :=
+                 Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
             end if;
          else
             Mem_Write (I) := null;
@@ -1132,30 +1157,30 @@ package body Apple2.Memory is
          for I in Value_8_Bit (16#04#) .. Value_8_Bit (16#07#) loop
             Offset := Shift_Left (Address_16_Bit (I), 8);
             if Mode_Page_2 then
-               Mem_Shadow (I) := Mem_Aux.all (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Shadow (I) :=
+                 Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
             else
-               Mem_Shadow (I) := Mem_Main (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Shadow (I) :=
+                 Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
             end if;
 
-            Mem_Write (I) := Mem_Image (Offset .. Offset + 255)
-              'Unrestricted_Access;
+            Mem_Write (I) :=
+              Mem_Image (Offset .. Offset + 255)'Unrestricted_Access;
          end loop;
 
          if Mode_Hi_Res then
             for I in Value_8_Bit (16#20#) .. Value_8_Bit (16#3F#) loop
                Offset := Shift_Left (Address_16_Bit (I), 8);
                if Mode_Page_2 then
-                  Mem_Shadow (I) := Mem_Aux.all (Offset .. Offset + 255)
-                    'Unrestricted_Access;
+                  Mem_Shadow (I) :=
+                    Mem_Aux.all (Offset .. Offset + 255)'Unrestricted_Access;
                else
-                  Mem_Shadow (I) := Mem_Main (Offset .. Offset + 255)
-                    'Unrestricted_Access;
+                  Mem_Shadow (I) :=
+                    Mem_Main (Offset .. Offset + 255)'Unrestricted_Access;
                end if;
 
-               Mem_Write (I) := Mem_Image (Offset .. Offset + 255)
-                 'Unrestricted_Access;
+               Mem_Write (I) :=
+                 Mem_Image (Offset .. Offset + 255)'Unrestricted_Access;
             end loop;
          end if;
       end if;
@@ -1169,7 +1194,7 @@ package body Apple2.Memory is
                Offset := Shift_Left (Address_16_Bit (I), 8);
                if not Initialize and ((Mem_Dirty (I) and 1) /= 0 or I <= 1)
                then
-                  Mem_Dirty (I) := Mem_Dirty (I) and 16#FE#;
+                  Mem_Dirty (I)      := Mem_Dirty (I) and 16#FE#;
                   Old_Shadow (I).all := Mem_Image (Offset .. Offset + 255);
                end if;
                Mem_Image (Offset .. Offset + 255) := Mem_Shadow (I).all;
@@ -1182,35 +1207,36 @@ package body Apple2.Memory is
    -- Mem_Check_Paging --
    ----------------------
 
-   procedure Mem_Check_Paging (Address : Address_16_Bit;
-                               Read_Value : out Value_8_Bit) is
+   procedure Mem_Check_Paging
+     (Address : Address_16_Bit; Read_Value : out Value_8_Bit)
+   is
       Mode_Value : Boolean;
-      Key_Value : Value_8_Bit;
+      Key_Value  : Value_8_Bit;
    begin
       --  TODO: >= Apple 2e only?
       case Value_8_Bit (Address and 16#FF#) is
-      when 16#11# =>
-         Mode_Value := Mode_High_RAM_Bank_2;
-      when 16#12# =>
-         Mode_Value := Mode_High_RAM;
-      when 16#13# =>
-         Mode_Value := Mode_Aux_Read;
-      when 16#14# =>
-         Mode_Value := Mode_Aux_Write;
-      when 16#15# =>
-         Mode_Value := not Mode_Slot_CX_ROM;
-      when 16#16# =>
-         Mode_Value := Mode_Alt_ZP;
-      when 16#17# =>
-         Mode_Value := Mode_Slot_C3_ROM;
-      when 16#18# =>
-         Mode_Value := Mode_80_Store;
-      when 16#1C# =>
-         Mode_Value := Mode_Page_2;
-      when 16#1D# =>
-         Mode_Value := Mode_Hi_Res;
-      when others =>
-         Mode_Value := False;
+         when 16#11# =>
+            Mode_Value := Mode_High_RAM_Bank_2;
+         when 16#12# =>
+            Mode_Value := Mode_High_RAM;
+         when 16#13# =>
+            Mode_Value := Mode_Aux_Read;
+         when 16#14# =>
+            Mode_Value := Mode_Aux_Write;
+         when 16#15# =>
+            Mode_Value := not Mode_Slot_CX_ROM;
+         when 16#16# =>
+            Mode_Value := Mode_Alt_ZP;
+         when 16#17# =>
+            Mode_Value := Mode_Slot_C3_ROM;
+         when 16#18# =>
+            Mode_Value := Mode_80_Store;
+         when 16#1C# =>
+            Mode_Value := Mode_Page_2;
+         when 16#1D# =>
+            Mode_Value := Mode_Hi_Res;
+         when others =>
+            Mode_Value := False;
       end case;
 
       Key_Value := Keyb_Get_Keycode;
@@ -1226,30 +1252,30 @@ package body Apple2.Memory is
    -----------------------
 
    procedure Mem_Get_Aux_Range
-     (Offset, Length : Address_16_Bit; Mem_Range : out Mem_Range_Access) is
-      Offset_Page : constant Value_8_Bit :=
+     (Offset, Length : Address_16_Bit; Mem_Range : out Mem_Range_Access)
+   is
+      Offset_Page         : constant Value_8_Bit    :=
         Value_8_Bit (Shift_Right (Offset, 8));
       Offset_Page_Address : constant Address_16_Bit := Offset and 16#FF00#;
-      Aux_Bank : access Mem_Bank_64K := Mem_Aux;
+      Aux_Bank            : access Mem_Bank_64K     := Mem_Aux;
    begin
       --  Special handling for RAMWorks to use bank 0 sometimes
       if ((Mode_Page_2 and Mode_80_Store) or Video_Mode_80_Column) and
         ((Offset_Page >= 16#04# and Offset_Page < 16#08#) or
-             (Mode_Hi_Res and
-                  Offset_Page >= 16#20# and Offset_Page < 16#40#))
+         (Mode_Hi_Res and Offset_Page >= 16#20# and Offset_Page < 16#40#))
       then
          Aux_Bank := RAM_Works_Pages (0)'Access;
       end if;
 
-      if Mem_Shadow (Offset_Page) = Aux_Bank (Offset_Page_Address ..
-                                                Offset_Page_Address + 255)
-          'Unrestricted_Access
+      if Mem_Shadow (Offset_Page) =
+        Aux_Bank (Offset_Page_Address .. Offset_Page_Address + 255)'
+          Unrestricted_Access
       then
-         Mem_Range := Mem_Image (Offset .. Offset + Length - 1)
-           'Unrestricted_Access;
+         Mem_Range :=
+           Mem_Image (Offset .. Offset + Length - 1)'Unrestricted_Access;
       else
-         Mem_Range := Aux_Bank (Offset .. Offset + Length - 1)
-           'Unrestricted_Access;
+         Mem_Range :=
+           Aux_Bank (Offset .. Offset + Length - 1)'Unrestricted_Access;
       end if;
    end Mem_Get_Aux_Range;
 
@@ -1258,20 +1284,21 @@ package body Apple2.Memory is
    ------------------------
 
    procedure Mem_Get_Main_Range
-     (Offset, Length : Address_16_Bit; Mem_Range : out Mem_Range_Access) is
-      Offset_Page : constant Value_8_Bit :=
+     (Offset, Length : Address_16_Bit; Mem_Range : out Mem_Range_Access)
+   is
+      Offset_Page         : constant Value_8_Bit    :=
         Value_8_Bit (Shift_Right (Offset, 8));
       Offset_Page_Address : constant Address_16_Bit := Offset and 16#FF00#;
    begin
-      if Mem_Shadow (Offset_Page) = Mem_Main (Offset_Page_Address ..
-                                                Offset_Page_Address + 255)
-          'Unrestricted_Access
+      if Mem_Shadow (Offset_Page) =
+        Mem_Main (Offset_Page_Address .. Offset_Page_Address + 255)'
+          Unrestricted_Access
       then
-         Mem_Range := Mem_Image (Offset .. Offset + Length - 1)
-           'Unrestricted_Access;
+         Mem_Range :=
+           Mem_Image (Offset .. Offset + Length - 1)'Unrestricted_Access;
       else
-         Mem_Range := Mem_Main (Offset .. Offset + Length - 1)
-           'Unrestricted_Access;
+         Mem_Range :=
+           Mem_Main (Offset .. Offset + Length - 1)'Unrestricted_Access;
       end if;
    end Mem_Get_Main_Range;
 
@@ -1288,8 +1315,9 @@ package body Apple2.Memory is
    -- Mem_Is_Address_Code_Memory --
    --------------------------------
 
-   function Mem_Is_Address_Code_Memory (Address : Address_16_Bit)
-                                        return Boolean is
+   function Mem_Is_Address_Code_Memory
+     (Address : Address_16_Bit) return Boolean
+   is
    begin
       if Address < 16#C000# or Address > Firmware_Expansion_End then
          return True;   --  Assume all A][ types have at least 48K
@@ -1334,18 +1362,18 @@ package body Apple2.Memory is
       Random_Byte.Reset (Random_Generator);
 
       case Get_Machine_Type is
-      when Apple_2 =>
-         ROM_Data := Apple_2_ROM'Unrestricted_Access;
-         ROM_Size := Apple_2_ROM_Size;
-      when Apple_2_Plus =>
-         ROM_Data := Apple_2_Plus_ROM'Unrestricted_Access;
-         ROM_Size := Apple_2_ROM_Size;
-      when Apple_2e =>
-         ROM_Data := Apple_2e_ROM'Unrestricted_Access;
-         ROM_Size := Apple_2e_ROM_Size;
-      when others =>
-         ROM_Data := Apple_2e_Enhanced_ROM'Unrestricted_Access;
-         ROM_Size := Apple_2e_ROM_Size;
+         when Apple_2 =>
+            ROM_Data := Apple_2_ROM'Unrestricted_Access;
+            ROM_Size := Apple_2_ROM_Size;
+         when Apple_2_Plus =>
+            ROM_Data := Apple_2_Plus_ROM'Unrestricted_Access;
+            ROM_Size := Apple_2_ROM_Size;
+         when Apple_2e =>
+            ROM_Data := Apple_2e_ROM'Unrestricted_Access;
+            ROM_Size := Apple_2e_ROM_Size;
+         when others =>
+            ROM_Data := Apple_2e_Enhanced_ROM'Unrestricted_Access;
+            ROM_Size := Apple_2e_ROM_Size;
       end case;
 
       Cx_ROM_Peripheral := (others => 0);
@@ -1355,7 +1383,7 @@ package body Apple2.Memory is
          Mem_ROM := ROM_Data.all (Cx_ROM_Size .. Apple_2e_ROM_Size - 1);
       else
          Cx_ROM_Internal := (others => 0);
-         Mem_ROM := ROM_Data.all (0 .. Apple_2_ROM_Size - 1);
+         Mem_ROM         := ROM_Data.all (0 .. Apple_2_ROM_Size - 1);
       end if;
 
       Cx_ROM_Peripheral (16#0100# .. 16#01FF#) := Printer_ROM;
@@ -1365,9 +1393,9 @@ package body Apple2.Memory is
       --  $C200 : SSC slot f/w (256 byte section of 2KB ROM)
       Cx_ROM_Peripheral (16#0600# .. 16#06FF#) := Disk_ROM;
       --  HACK! REMOVE A WAIT ROUTINE FROM THE DISK CONTROLLER'S FIRMWARE
-      Cx_ROM_Peripheral (16#064C#) := 16#A9#;
-      Cx_ROM_Peripheral (16#064D#) := 16#00#;
-      Cx_ROM_Peripheral (16#064E#) := 16#EA#;
+      Cx_ROM_Peripheral (16#064C#)             := 16#A9#;
+      Cx_ROM_Peripheral (16#064D#)             := 16#00#;
+      Cx_ROM_Peripheral (16#064E#)             := 16#EA#;
       --  $C600 : Disk ][ f/w
       --  TODO: $C700 : HDD f/w
       Mem_Reset;
@@ -1378,9 +1406,10 @@ package body Apple2.Memory is
    ---------------------------
 
    procedure Mem_Read_Floating_Bus
-     (Read_Value : out Value_8_Bit; Executed_Cycles : Natural) is
+     (Read_Value : out Value_8_Bit; Executed_Cycles : Natural)
+   is
       VBL_Bar_Ignore : Boolean;
-      Address : Address_16_Bit;
+      Address        : Address_16_Bit;
    begin
       Video_Get_Scanner_Address (Executed_Cycles, VBL_Bar_Ignore, Address);
       Read_Value := Mem_Image (Address);
@@ -1391,8 +1420,9 @@ package body Apple2.Memory is
    --------------------------------------
 
    procedure Mem_Read_Floating_Bus
-     (High_Bit : Boolean; Read_Value : out Value_8_Bit;
-      Executed_Cycles : Natural) is
+     (High_Bit        : Boolean; Read_Value : out Value_8_Bit;
+      Executed_Cycles : Natural)
+   is
       Temp_Value : Value_8_Bit;
    begin
       Mem_Read_Floating_Bus (Temp_Value, Executed_Cycles);
@@ -1413,8 +1443,9 @@ package body Apple2.Memory is
    begin
       for I in Address_16_Bit (0) .. Address_16_Bit (2) loop
          if PC <= 16#FFFF# - I then
-            Value := Value or Shift_Left (Value_32_Bit (Mem_Image (PC + I)),
-                                          Integer (I * 8));
+            Value :=
+              Value or
+              Shift_Left (Value_32_Bit (Mem_Image (PC + I)), Integer (I * 8));
          end if;
       end loop;
       return Value;
@@ -1427,16 +1458,19 @@ package body Apple2.Memory is
    procedure Mem_Set_Paging
      (PC, Address : Address_16_Bit; Is_Write : Boolean;
       Write_Value : Value_8_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural) is
+      Cycles_Left : Natural)
+   is
       pragma Unreferenced (Is_Write);
-      Offset : constant Value_8_Bit := Value_8_Bit (Address and 16#FF#);
+      Offset        : constant Value_8_Bit := Value_8_Bit (Address and 16#FF#);
       Last_Mem_Mode : constant Mem_Flag_Type := Mem_Mode;
    begin
       if Offset >= 16#80# and Offset <= 16#8F# then
          declare
             Write_RAM : constant Boolean := (Offset and 1) /= 0;
          begin
-            Mem_Mode := Mem_Mode and not
+            Mem_Mode       :=
+              Mem_Mode and
+              not
               (Flag_High_RAM_Bank_2 or Flag_High_RAM or Flag_High_RAM_Write);
             Last_Write_RAM := True;
             --  Note: because diags.do doesn't set switches twice!
@@ -1454,48 +1488,48 @@ package body Apple2.Memory is
          end;
       elsif not Is_Apple2 then
          case Offset is
-         when 16#00# =>
-            Mem_Mode := Mem_Mode and not Flag_80_Store;
-         when 16#01# =>
-            Mem_Mode := Mem_Mode or Flag_80_Store;
-         when 16#02# =>
-            Mem_Mode := Mem_Mode and not Flag_Aux_Read;
-         when 16#03# =>
-            Mem_Mode := Mem_Mode or Flag_Aux_Read;
-         when 16#04# =>
-            Mem_Mode := Mem_Mode and not Flag_Aux_Write;
-         when 16#05# =>
-            Mem_Mode := Mem_Mode or Flag_Aux_Write;
-         when 16#06# =>
-            Mem_Mode := Mem_Mode and not Flag_Slot_CX_ROM;
-         when 16#07# =>
-            Mem_Mode := Mem_Mode or Flag_Slot_CX_ROM;
-         when 16#08# =>
-            Mem_Mode := Mem_Mode and not Flag_Alt_ZP;
-         when 16#09# =>
-            Mem_Mode := Mem_Mode or Flag_Alt_ZP;
-         when 16#0A# =>
-            Mem_Mode := Mem_Mode and not Flag_Slot_C3_ROM;
-         when 16#0B# =>
-            Mem_Mode := Mem_Mode or Flag_Slot_C3_ROM;
-         when 16#54# =>
-            Mem_Mode := Mem_Mode and not Flag_Page_2;
-         when 16#55# =>
-            Mem_Mode := Mem_Mode or Flag_Page_2;
-         when 16#56# =>
-            Mem_Mode := Mem_Mode and not Flag_Hi_Res;
-         when 16#57# =>
-            Mem_Mode := Mem_Mode or Flag_Hi_Res;
-         when 16#71# | 16#73# =>
-            --  16#71# - extended memory aux page number
-            --  16#73# - RAMWorks III set aux page number
-            if Write_Value < RAM_Works_Num_Pages then
-               RAM_Works_Active_Bank := RAM_Works_Bank_Range (Write_Value);
-               Mem_Aux := RAM_Works_Pages (RAM_Works_Active_Bank)'Access;
-               Mem_Update_Paging (False, False);
-            end if;
-         when others =>
-            null;
+            when 16#00# =>
+               Mem_Mode := Mem_Mode and not Flag_80_Store;
+            when 16#01# =>
+               Mem_Mode := Mem_Mode or Flag_80_Store;
+            when 16#02# =>
+               Mem_Mode := Mem_Mode and not Flag_Aux_Read;
+            when 16#03# =>
+               Mem_Mode := Mem_Mode or Flag_Aux_Read;
+            when 16#04# =>
+               Mem_Mode := Mem_Mode and not Flag_Aux_Write;
+            when 16#05# =>
+               Mem_Mode := Mem_Mode or Flag_Aux_Write;
+            when 16#06# =>
+               Mem_Mode := Mem_Mode and not Flag_Slot_CX_ROM;
+            when 16#07# =>
+               Mem_Mode := Mem_Mode or Flag_Slot_CX_ROM;
+            when 16#08# =>
+               Mem_Mode := Mem_Mode and not Flag_Alt_ZP;
+            when 16#09# =>
+               Mem_Mode := Mem_Mode or Flag_Alt_ZP;
+            when 16#0A# =>
+               Mem_Mode := Mem_Mode and not Flag_Slot_C3_ROM;
+            when 16#0B# =>
+               Mem_Mode := Mem_Mode or Flag_Slot_C3_ROM;
+            when 16#54# =>
+               Mem_Mode := Mem_Mode and not Flag_Page_2;
+            when 16#55# =>
+               Mem_Mode := Mem_Mode or Flag_Page_2;
+            when 16#56# =>
+               Mem_Mode := Mem_Mode and not Flag_Hi_Res;
+            when 16#57# =>
+               Mem_Mode := Mem_Mode or Flag_Hi_Res;
+            when 16#71# | 16#73# =>
+               --  16#71# - extended memory aux page number
+               --  16#73# - RAMWorks III set aux page number
+               if Write_Value < RAM_Works_Num_Pages then
+                  RAM_Works_Active_Bank := RAM_Works_Bank_Range (Write_Value);
+                  Mem_Aux := RAM_Works_Pages (RAM_Works_Active_Bank)'Access;
+                  Mem_Update_Paging (False, False);
+               end if;
+            when others =>
+               null;
          end case;
       end if;
 
@@ -1505,12 +1539,14 @@ package body Apple2.Memory is
 
       declare
          Next_Three_Bytes : constant Value_32_Bit :=
-           Next_Three_Code_Bytes (PC) and 16#00FFFEFF#;
+           Next_Three_Code_Bytes (PC) and 16#00FF_FEFF#;
       begin
-         if (Offset >= 4 and Offset <= 5 and Next_Three_Bytes = 16#00C0028D#)
-           or (Offset >= 16#80# and Offset <= 16#8F# and PC < 16#C000# and
-                 (Next_Three_Bytes = 16#00C0048D# or
-                      Next_Three_Bytes = 16#00C0028D#))
+         if
+           (Offset >= 4 and Offset <= 5 and
+            Next_Three_Bytes = 16#00C0_028D#) or
+           (Offset >= 16#80# and Offset <= 16#8F# and PC < 16#C000# and
+            (Next_Three_Bytes = 16#00C0_048D# or
+             Next_Three_Bytes = 16#00C0_028D#))
          then
             Mode_Changing := True;
             Mem_Read_Floating_Bus (True, Read_Value, Cycles_Left);
@@ -1533,15 +1569,15 @@ package body Apple2.Memory is
                --    None of the peripheral cards can be driving the bus, so
                --      use the null ROM.
                Cx_ROM_Peripheral (16#0800# .. 16#0FFF#) := (others => 0);
-               Mem_Image (16#C800# .. 16#CFFF#) := (others => 0);
-               Expansion_ROM_Type := ROM_Null;
-               Peripheral_ROM_Slot := 0;
+               Mem_Image (16#C800# .. 16#CFFF#)         := (others => 0);
+               Expansion_ROM_Type                       := ROM_Null;
+               Peripheral_ROM_Slot                      := 0;
             else
                --  Enable Internal ROM
                Mem_Image (16#C800# .. 16#CFFF#) :=
                  Cx_ROM_Peripheral (16#0800# .. 16#0FFF#);
-               Expansion_ROM_Type := ROM_Internal;
-               Peripheral_ROM_Slot := 0;
+               Expansion_ROM_Type               := ROM_Internal;
+               Peripheral_ROM_Slot              := 0;
             end if;
          end if;
 
@@ -1563,20 +1599,20 @@ package body Apple2.Memory is
    begin
       --  Initialize the paging tables
       Mem_Shadow := (others => null);
-      Mem_Write := (others => null);
+      Mem_Write  := (others => null);
 
       --  Initialize the RAM images
       Mem_Aux.all := (others => 0);
-      Mem_Main := (others => 0);
+      Mem_Main    := (others => 0);
 
       if Mem_Init_Pattern = Pattern_FF_FF_00_00 then
          declare
             I : Address_16_Bit := 0;
          begin
             while I < Address_16_Bit (16#C000#) loop
-               Mem_Main (I) := 16#FF#;
+               Mem_Main (I)     := 16#FF#;
                Mem_Main (I + 1) := 16#FF#;
-               I := I + 4;
+               I                := I + 4;
             end loop;
          end;
       end if;
@@ -1603,12 +1639,11 @@ package body Apple2.Memory is
    -- Mem_Read_Random_Data --
    --------------------------
 
-   function Mem_Read_Random_Data
-     (High_Bit : Boolean) return Value_8_Bit is
+   function Mem_Read_Random_Data (High_Bit : Boolean) return Value_8_Bit is
       Ret_Values : constant Mem_Range (0 .. 15) :=
         (16#00#, 16#2D#, 16#2D#, 16#30#, 16#30#, 16#32#, 16#32#, 16#34#,
          16#35#, 16#39#, 16#43#, 16#43#, 16#43#, 16#60#, 16#7F#, 16#7F#);
-      Value : Value_8_Bit := Random_Byte.Random (Random_Generator);
+      Value      : Value_8_Bit := Random_Byte.Random (Random_Generator);
    begin
       if Value <= 170 then
          if High_Bit then
@@ -1632,12 +1667,12 @@ package body Apple2.Memory is
 
    procedure Mem_Get_Snapshot (Snapshot : in out Snapshot_Base_Memory) is
    begin
-      Snapshot.Mem_Mode := Mem_Mode;
+      Snapshot.Mem_Mode       := Mem_Mode;
       Snapshot.Last_Write_RAM := Last_Write_RAM;
 
       for I in Address_16_Bit (0) .. Address_16_Bit (16#FF#) loop
          declare
-            Offset : constant Address_16_Bit := Shift_Left (I, 8);
+            Offset     : constant Address_16_Bit := Shift_Left (I, 8);
             Copy_Range : Mem_Range_Access (0 .. 255);
          begin
             Mem_Get_Main_Range (Offset, 256, Copy_Range);
@@ -1654,10 +1689,10 @@ package body Apple2.Memory is
 
    procedure Mem_Set_Snapshot (Snapshot : Snapshot_Base_Memory) is
    begin
-      Mem_Mode := Snapshot.Mem_Mode;
+      Mem_Mode       := Snapshot.Mem_Mode;
       Last_Write_RAM := Snapshot.Last_Write_RAM;
 
-      Mem_Main := Snapshot.Mem_Main;
+      Mem_Main    := Snapshot.Mem_Main;
       Mem_Aux.all := Snapshot.Mem_Aux;
 
       Mode_Changing := False;

@@ -25,12 +25,12 @@ pragma SPARK_Mode;
 package Apple2.Serial is
 
    procedure SSC_Read
-     (Address : Address_16_Bit; Read_Value : out Value_8_Bit;
+     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
       Cycles_Left : Natural);
    --  Read from the SSC I/O space
 
    procedure SSC_Write
-     (Address : Address_16_Bit; Write_Value : Value_8_Bit;
+     (Address     : Address_16_Bit; Write_Value : Value_8_Bit;
       Cycles_Left : Natural);
    --  Write to the SSC I/O space
 
