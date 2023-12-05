@@ -1,38 +1,19 @@
 project Apple2 is
 
-   type Build_Type is ("debug", "production", "profiling");
-   Bld : Build_Type := external ("BUILD", "debug");
-
    for Source_Dirs   use ("src");
-   for Object_Dir    use "obj/" & Bld;
-   for Exec_Dir      use "obj/" & Bld;
+   for Object_Dir    use "obj";
+   for Exec_Dir      use "bin";
    for Main          use ("main.adb");
-
-   Processors := external ("PROCESSORS", "0");
 
    for Languages use ("Ada");
 
    package Builder is
       for Executable ("main.adb") use "Apple2";
-      for Default_Switches ("Ada") use ("-s", "-m", "-j" & Processors);
    end Builder;
 
    package Compiler is
-      Common_Switches := ("-gnat2020", "-gnatQ", "-gnata", "-gnaty", "-gnateE");
-
-      case Bld is
-         when "debug" =>
-            for Default_Switches ("Ada") use Common_Switches &
-              ("-g", "-gnatVa", "-gnatwaCJI", "-gnatyg", "-gnatwe");
-
-         when "profiling" =>
-            for Default_Switches ("Ada") use Common_Switches &
-              ("-pg", "-g");
-
-         when "production" =>
-            for Default_Switches ("Ada") use Common_Switches &
-              ("-O2", "-g", "-gnatn", "-gnatws");
-      end case;
+      for Default_Switches ("Ada") use
+         ("-gnata", "-gnateE", "-gnaty", "-gnatyg", "-gnatwa", "-gnatwe");
    end Compiler;
 
 end Apple2;
