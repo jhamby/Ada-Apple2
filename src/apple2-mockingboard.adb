@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,15 +20,18 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-with Apple2.CPU; use Apple2.CPU;
-
-package body Apple2.Mockingboard is
+package body Apple2.Mockingboard with
+  SPARK_Mode
+is
 
    ---------------
    -- Phasor_IO --
    ---------------
 
-   procedure Phasor_IO (Address : Address_16_Bit) is
+   procedure Phasor_IO
+     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address :        Unsigned_16)
+   is
    begin
       null;
       --  TODO: add implementation
@@ -41,12 +42,13 @@ package body Apple2.Mockingboard is
    -------------
 
    procedure MB_Read
-     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural)
+     (C           : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
+      Cycles_Left :        Natural)
    is
       pragma Unreferenced (Address);
    begin
-      CPU_Calc_Cycles (Cycles_Left);
+      CPU_Calc_Cycles (C, Cycles_Left);
       Read_Value := 0;
       --  TODO: add implementation
    end MB_Read;
@@ -56,12 +58,12 @@ package body Apple2.Mockingboard is
    --------------
 
    procedure MB_Write
-     (Address     : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural)
+     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural)
    is
       pragma Unreferenced (Address, Write_Value);
    begin
-      CPU_Calc_Cycles (Cycles_Left);
+      CPU_Calc_Cycles (C, Cycles_Left);
       --  TODO: add implementation
    end MB_Write;
 

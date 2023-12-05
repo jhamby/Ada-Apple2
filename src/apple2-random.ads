@@ -1,11 +1,5 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
---  Copyright (C) 1994-1996, Michael O'Brien
---  Copyright (C) 1999-2001, Oliver Schmidt
---  Copyright (C) 2002-2005, Tom Charlesworth
---  Copyright (C) 2006-2007, Tom Charlesworth, Michael Pohoreski
 --  Copyright (C) 2023, Jake Hamby (Ada port)
 --
 --  AppleWin is free software; you can redistribute it and/or modify
@@ -22,12 +16,15 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package Apple2.CPU is
+package Apple2.Random with
+  SPARK_Mode
+is
 
-   procedure CPU_Initialize;
-   --  Initialize the CPU state
+   procedure Reset_Generator;
+   --  Seed the PRNG for Mem_Read_Random_Data
 
-   procedure CPU_Calc_Cycles (Cycles_Left : Natural);
-   --  Update the CPU cycle counters
+   function Mem_Read_Random_Data (High_Bit : Boolean) return Unsigned_8;
+   --  Read random bus data and replace high bit with specified value
+   --  Called by Disk ][ I/O only. Doesn't use machine state.
 
-end Apple2.CPU;
+end Apple2.Random;

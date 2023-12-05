@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,19 +20,22 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package Apple2.Joystick is
+package Apple2.Joystick with
+  SPARK_Mode
+is
 
    procedure Joy_Read_Button
-     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural);
+     (C          : in out Apple2_Base; Address : Unsigned_16;
+      Read_Value :    out Unsigned_8; Cycles_Left : Natural);
    --  Read joystick button (in high bit)
 
    procedure Joy_Read_Position
-     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural);
+     (C          : in out Apple2_Base; Address : Unsigned_16;
+      Read_Value :    out Unsigned_8; Cycles_Left : Natural);
    --  Read joystick position (paddle controller active in high bit)
 
-   procedure Joy_Reset_Position (Cycles_Left : Natural);
+   procedure Joy_Reset_Position
+     (C : in out Apple2_Base; Cycles_Left : Natural);
    --  Reset joystick position
 
 end Apple2.Joystick;

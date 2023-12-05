@@ -1,11 +1,9 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
 --  Copyright (C) 1999-2001, Oliver Schmidt
 --  Copyright (C) 2002-2005, Tom Charlesworth
---  Copyright (C) 2006-2007, Tom Charlesworth, Michael Pohoreski
+--  Copyright (C) 2006-2007, Tom Charlesworth, Michael Pohoreski, Nick Westgate
 --  Copyright (C) 2023, Jake Hamby (Ada port)
 --
 --  AppleWin is free software; you can redistribute it and/or modify
@@ -22,42 +20,24 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2.Video is
-
-   type Video_Flag_Type is mod 2**16;
-
-   Vid_Flag_No_Flags  : constant Video_Flag_Type := 16#0000#;
-   Vid_Flag_80_Column : constant Video_Flag_Type := 16#0001#;
-   Vid_Flag_Dbl_Hires : constant Video_Flag_Type := 16#0002#;
-   pragma Unreferenced (Vid_Flag_Dbl_Hires);
-   Vid_Flag_Hires : constant Video_Flag_Type := 16#0004#;
-   pragma Unreferenced (Vid_Flag_Hires);
-   Vid_Flag_Mask_2 : constant Video_Flag_Type := 16#0008#;
-   pragma Unreferenced (Vid_Flag_Mask_2);
-   Vid_Flag_Mixed : constant Video_Flag_Type := 16#0010#;
-   pragma Unreferenced (Vid_Flag_Mixed);
-   Vid_Flag_Page_2 : constant Video_Flag_Type := 16#0020#;
-   pragma Unreferenced (Vid_Flag_Page_2);
-   Vid_Flag_Text : constant Video_Flag_Type := 16#0040#;
-   pragma Unreferenced (Vid_Flag_Text);
-
-   Video_Mode : constant Video_Flag_Type := Vid_Flag_No_Flags;
-   --  Current video mode
+package body Apple2.Video with
+  SPARK_Mode
+is
 
    --------------------------
    -- Video_Mode_80_Column --
    --------------------------
 
-   function Video_Mode_80_Column return Boolean is
+   function Video_Mode_80_Column (C : Apple2_Base) return Boolean is
    begin
-      return (Video_Mode and Vid_Flag_80_Column) /= 0;
+      return (C.Video_Mode and Vid_Flag_80_Column) /= 0;
    end Video_Mode_80_Column;
 
    --------------------
    -- Video_Set_Mode --
    --------------------
 
-   procedure Video_Set_Mode (Address : Address_16_Bit) is
+   procedure Video_Set_Mode (C : in out Apple2_Base; Address : Unsigned_16) is
    begin
       null;  --  TODO: add implementation
    end Video_Set_Mode;
@@ -67,9 +47,10 @@ package body Apple2.Video is
    ---------------------
 
    procedure Video_Check_VBL
-     (Read_Value : out Value_8_Bit; Cycles_Left : Natural)
+     (C           : in out Apple2_Base; Read_Value : out Unsigned_8;
+      Cycles_Left :        Natural)
    is
-      pragma Unreferenced (Cycles_Left);
+      pragma Unreferenced (Cycles_Left, C);
    begin
       Read_Value := 0;  --  TODO: add implementation
    end Video_Check_VBL;
@@ -79,10 +60,10 @@ package body Apple2.Video is
    ----------------------
 
    procedure Video_Check_Mode
-     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural)
+     (C          : in out Apple2_Base; Address : Unsigned_16;
+      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
    is
-      pragma Unreferenced (Address, Cycles_Left);
+      pragma Unreferenced (Address, Cycles_Left, C);
    begin
       Read_Value := 0;  --  TODO: add implementation
    end Video_Check_Mode;
@@ -92,12 +73,13 @@ package body Apple2.Video is
    -------------------------------
 
    procedure Video_Get_Scanner_Address
-     (Executed_Cycles :     Natural; VBL_Bar : out Boolean;
-      Address         : out Address_16_Bit)
+     (C : in out Apple2_Base; VBL_Bar : out Boolean; Bank : out RAM_Bank_Index;
+      Address :    out Unsigned_16; Executed_Cycles : Natural)
    is
-      pragma Unreferenced (Executed_Cycles);
+      pragma Unreferenced (Executed_Cycles, C);
    begin
       VBL_Bar := False;  --  TODO: add implementation
+      Bank    := 0;
       Address := 0;
    end Video_Get_Scanner_Address;
 

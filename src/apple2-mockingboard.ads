@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,19 +20,24 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package Apple2.Mockingboard is
+package Apple2.Mockingboard with
+  SPARK_Mode
+is
 
-   procedure Phasor_IO (Address : Address_16_Bit);
+   procedure Phasor_IO
+     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address :        Unsigned_16);
    --  Read or write Mockingboard / Phasor I/O space ($C0xx)
 
    procedure MB_Read
-     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural);
+     (C           : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
+      Cycles_Left :        Natural);
    --  Read from Mockingboard / Phasor I/O space ($Cxxx)
 
    procedure MB_Write
-     (Address     : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural);
+     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural);
    --  Write to Mockingboard / Phasor I/O space ($Cxxx)
 
 end Apple2.Mockingboard;

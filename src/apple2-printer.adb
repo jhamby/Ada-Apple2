@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,19 +20,22 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2.Printer is
+package body Apple2.Printer with
+  SPARK_Mode
+is
 
-   procedure Check_Print (Success : out Boolean);
+   procedure Check_Print (C : in out Apple2_Base; Success : out Boolean);
    --  Create and open the printer file and return status
 
    -----------------
    -- Print_Status --
    -----------------
 
-   procedure Print_Status (Read_Value : out Value_8_Bit) is
+   procedure Print_Status (C : in out Apple2_Base; Read_Value : out Unsigned_8)
+   is
       Ignore : Boolean;
    begin
-      Check_Print (Ignore);
+      Check_Print (C, Ignore);
       Read_Value := 16#FF#;  --  TODO: status
    end Print_Status;
 
@@ -42,7 +43,8 @@ package body Apple2.Printer is
    -- Print_Transmit --
    --------------------
 
-   procedure Print_Transmit (Write_Value : Value_8_Bit) is
+   procedure Print_Transmit (C : in out Apple2_Base; Write_Value : Unsigned_8)
+   is
    begin
       null;  -- TODO: add implementation
    end Print_Transmit;
@@ -51,7 +53,8 @@ package body Apple2.Printer is
    -- Check_Print --
    -----------------
 
-   procedure Check_Print (Success : out Boolean) is
+   procedure Check_Print (C : in out Apple2_Base; Success : out Boolean) is
+      pragma Unreferenced (C);
    begin
       Success := True;  --  TODO: add implementation
    end Check_Print;

@@ -1,13 +1,14 @@
-pragma SPARK_Mode;
 pragma Style_Checks (Off);
 
 --  Apple II parallel printer card ROM (Copyright?)
 
-package Apple2.Printer.ROM is
+with Emu; use Emu;
 
-   Printer_ROM_Size : constant := 256;
+package Apple2.Printer.ROM with
+  SPARK_Mode
+is
 
-   Printer_ROM : constant Mem_Range (0 .. Printer_ROM_Size - 1) :=
+   Printer_ROM : constant Mem_Page :=
      (16#18#,16#B0#,16#38#,16#48#,16#8A#,16#48#,16#98#,16#48#,16#08#,16#78#,16#20#,16#58#,16#FF#,16#BA#,16#68#,16#68#,
       16#68#,16#68#,16#A8#,16#CA#,16#9A#,16#68#,16#28#,16#AA#,16#90#,16#38#,16#BD#,16#B8#,16#05#,16#10#,16#19#,16#98#,
       16#29#,16#7F#,16#49#,16#30#,16#C9#,16#0A#,16#90#,16#3B#,16#C9#,16#78#,16#B0#,16#29#,16#49#,16#3D#,16#F0#,16#21#,

@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,24 +20,17 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2.CPU is
+with Emu.Memory; use Emu.Memory;
 
-   --------------------
-   -- CPU_Initialize --
-   --------------------
+with MOS_CPU_6502; use MOS_CPU_6502;
 
-   procedure CPU_Initialize is
-   begin
-      null;  --  TODO: add implementation
-   end CPU_Initialize;
+package WDC_CPU_65C02 with
+  SPARK_Mode
+is
 
-   ---------------------
-   -- CPU_Calc_Cycles --
-   ---------------------
+   procedure CPU_Execute_WDC_65C02
+     (C            : in out CPU_6502_Series; Mem : access RAM_All_Banks;
+      Total_Cycles :        Natural);
+   --  Emulate a WDC W65C02S CPU for the specified number of cycles
 
-   procedure CPU_Calc_Cycles (Cycles_Left : Natural) is
-   begin
-      null;  --  TODO: add implementation
-   end CPU_Calc_Cycles;
-
-end Apple2.CPU;
+end WDC_CPU_65C02;

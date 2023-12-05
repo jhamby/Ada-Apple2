@@ -20,44 +20,49 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2.Joystick with
+package body MOS_CPU_6502 with
   SPARK_Mode
 is
 
-   ---------------------
-   -- Joy_Read_Button --
-   ---------------------
+   --------------------
+   -- CPU_Initialize --
+   --------------------
 
-   procedure Joy_Read_Button
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
-   is
-      pragma Unreferenced (Address, Cycles_Left, C);
+   procedure CPU_Initialize (C : in out CPU_6502_Series) is
    begin
-      Read_Value := 0;  --  TODO: add implementation
-   end Joy_Read_Button;
+      null;  --  TODO: add implementation
+   end CPU_Initialize;
 
-   -----------------------
-   -- Joy_Read_Position --
-   -----------------------
+   ---------------
+   -- CPU_Reset --
+   ---------------
 
-   procedure Joy_Read_Position
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
-   is
-      pragma Unreferenced (Address, Cycles_Left, C);
+   procedure CPU_Reset (C : in out CPU_6502_Series) is
    begin
-      Read_Value := 0;  --  TODO: add implementation
-   end Joy_Read_Position;
+      null;  --  TODO: add implementation
+   end CPU_Reset;
 
    ---------------------
-   -- Joy_Reset_Position --
+   -- CPU_Calc_Cycles --
    ---------------------
 
-   procedure Joy_Reset_Position (C : in out Apple2_Base; Cycles_Left : Natural)
+   procedure CPU_Calc_Cycles
+     (C : in out CPU_6502_Series; Cycles_Left : Natural)
    is
    begin
       null;  --  TODO: add implementation
-   end Joy_Reset_Position;
+   end CPU_Calc_Cycles;
 
-end Apple2.Joystick;
+   --------------------------
+   -- CPU_Execute_MOS_6502 --
+   --------------------------
+
+   procedure CPU_Execute_MOS_6502
+     (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
+      Total_Cycles :        Natural)
+   is
+   begin
+      null;  --  TODO: add implementation
+   end CPU_Execute_MOS_6502;
+
+end MOS_CPU_6502;

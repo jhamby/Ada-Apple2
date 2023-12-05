@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,17 +20,20 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2.Disk is
+package body Apple2.Disk with
+  SPARK_Mode
+is
 
    ------------------
    -- Disk_IO_Read --
    ------------------
 
    procedure Disk_IO_Read
-     (Address     : Address_16_Bit; Read_Value : out Value_8_Bit;
-      Cycles_Left : Natural)
+     (C           : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
+      Cycles_Left :        Natural)
    is
-      pragma Unreferenced (Address, Cycles_Left);
+      pragma Unreferenced (Address, Cycles_Left, C, Mem);
    begin
       Read_Value := 0;  --  TODO: add implementation
    end Disk_IO_Read;
@@ -42,9 +43,10 @@ package body Apple2.Disk is
    -------------------
 
    procedure Disk_IO_Write
-     (Address     : Address_16_Bit; Write_Value : Value_8_Bit;
-      Cycles_Left : Natural)
+     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+      Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural)
    is
+      pragma Unreferenced (Address, Cycles_Left, C, Mem);
    begin
       null;  --  TODO: add implementation
    end Disk_IO_Write;

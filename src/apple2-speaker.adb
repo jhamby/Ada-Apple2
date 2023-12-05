@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,13 +20,15 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2.Speaker is
+package body Apple2.Speaker with
+  SPARK_Mode
+is
 
    -----------------
    -- Spkr_Toggle --
    -----------------
 
-   procedure Spkr_Toggle (Cycles_Left : Natural) is
+   procedure Spkr_Toggle (C : in out Apple2_Base; Cycles_Left : Natural) is
    begin
       null;  --  TODO: add implementation
    end Spkr_Toggle;

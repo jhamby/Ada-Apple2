@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,15 +20,20 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package Apple2.Keyboard is
+package Apple2.Keyboard with
+  SPARK_Mode
+is
 
-   procedure Keyb_Read_Data (Read_Value : out Value_8_Bit);
+   procedure Keyb_Read_Data
+     (C : in out Apple2_Base; Read_Value : out Unsigned_8);
    --  Read keyboard data (updates state)
 
-   procedure Keyb_Read_Flag (Read_Value : out Value_8_Bit);
+   procedure Keyb_Read_Flag
+     (C : in out Apple2_Base; Read_Value : out Unsigned_8);
    --  Read keyboard flag (updates state)
 
-   function Keyb_Get_Keycode return Value_8_Bit;
+   function Keyb_Get_Keycode (C : Apple2_Base) return Unsigned_8;
+   pragma Inline (Keyb_Get_Keycode);
    --  Read current keycode
 
 end Apple2.Keyboard;

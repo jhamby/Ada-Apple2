@@ -1,52 +1,77 @@
 --  Temporary Main procedure for initial testing
 
-with Ada.Assertions; use Ada.Assertions;
 with Ada.Text_IO;
 
-with Apple2;        use Apple2;
+with Apple2; use Apple2;
+
 with Apple2.Memory; use Apple2.Memory;
 
+with Emu; use Emu;
+
+with Emu.Memory; use Emu.Memory;
+
+with Interfaces; use Interfaces;
+
+with MOS_CPU_6502; use MOS_CPU_6502;
+
 procedure Main is
-   procedure Print_Type;
+   procedure Run_Tests (C : in out Computer; Mem : access RAM_All_Banks);
+   --  Exercise the computer object
 
-   procedure Print_Type is
+   Main_Mem : access RAM_All_Banks := new RAM_All_Banks;
+
+   procedure Run_Tests (C : in out Computer; Mem : access RAM_All_Banks) is
+      IO_Read_Value : Unsigned_8;
    begin
-      if Is_Apple2 then
-         Ada.Text_IO.Put_Line ("original Apple II");
-      else
-         Ada.Text_IO.Put_Line ("Apple IIe or IIe Enhanced");
+      for I in Unsigned_16 (16#C000#) .. Unsigned_16 (16#CFFF#) loop
+         Mem_IO_Read (C, Main_Mem, I, IO_Read_Value, 3);
+         Mem_IO_Write (C, Main_Mem, I, 123, 3);
+      end loop;
+
+      CPU_Execute (C, Main_Mem, 10000);
+
+      if IO_Read_Value /= 0 then
+         Ada.Text_IO.Put_Line ("I/O read value /= 0");
       end if;
-   end Print_Type;
+   end Run_Tests;
 
-   Mem_Range_1   : Mem_Range_Access (16#2000# .. 16#4FFF#) := null;
-   Mem_Range_2   : Mem_Range_Access (16#4000# .. 16#6FFF#) := null;
-   IO_Read_Value : Value_8_Bit                             := 0;
 begin
-   --  Default type should be Apple IIe Enhanced
-   Print_Type;
-   Assert (not Is_Apple2);
 
-   Set_Machine_Type (Apple_2_Plus);
-   Print_Type;
-   Assert (Is_Apple2);
+   --  Simulate instantiating a single machine based on startup config
+   for I in 0 .. 3 loop
+      case I is
+         when 0 =>
+            declare
+               C : Computer;
+            begin
+               Init_Apple2 (C, Main_Mem, Apple_2);
+               Run_Tests (C, Main_Mem);
+            end;
 
-   Set_Machine_Type (Apple_2e);
-   Print_Type;
-   Assert (not Is_Apple2);
+         when 1 =>
+            declare
+               C : Computer;
+            begin
+               Init_Apple2 (C, Main_Mem, Apple_2_Plus);
+               Run_Tests (C, Main_Mem);
+            end;
 
-   Init_IO_Handlers;
-   Mem_Initialize;
-   Mem_Get_Main_Range (16#2000#, 16#3000#, Mem_Range_1);
-   Mem_Get_Aux_Range (16#4000#, 16#3000#, Mem_Range_2);
-   for I in Mem_Range_1'First .. Mem_Range_1'Last loop
-      Mem_Range_2.all (I + 16#2000#) := Mem_Range_1.all (I);
+         when 2 =>
+            declare
+               C : Computer;
+            begin
+               Init_Apple2 (C, Main_Mem, Apple_2e);
+               Run_Tests (C, Main_Mem);
+            end;
+
+         when 3 =>
+            declare
+               C : Computer;
+            begin
+               Init_Apple2 (C, Main_Mem, Apple_2e_Enhanced);
+               Run_Tests (C, Main_Mem);
+            end;
+      end case;
    end loop;
 
-   for I in Address_16_Bit (16#C000#) .. Address_16_Bit (16#CFFF#) loop
-      Mem_IO_Read (I, I, IO_Read_Value, 42);
-      Mem_IO_Write (I, I, IO_Read_Value, 64);
-   end loop;
-   if IO_Read_Value /= 0 then
-      Ada.Text_IO.Put_Line ("I/O read value /= 0");
-   end if;
 end Main;

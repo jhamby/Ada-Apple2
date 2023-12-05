@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,36 +20,84 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2 is
+with Interfaces; use Interfaces;
 
-   Machine_Type : Apple_2_Type := Apple_2e_Enhanced;
-   --  type of Apple II to emulate
+with WDC_CPU_65C02; use WDC_CPU_65C02;
+
+package body Apple2 with
+  SPARK_Mode
+is
+
+   --------------
+   -- Mem_Read --
+   --------------
+
+   function Mem_Read
+     (C    : Apple2_Base; Mem : not null access RAM_All_Banks;
+      Bank : RAM_Bank_Index; Address : Unsigned_16) return Unsigned_8
+   is
+   begin
+      return Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address));
+   end Mem_Read;
+
+   ---------------
+   -- Mem_Write --
+   ---------------
+
+   procedure Mem_Write
+     (C    : in out Apple2_Base; Mem : not null access RAM_All_Banks;
+      Bank :        RAM_Bank_Index; Address : Unsigned_16; Value : Unsigned_8)
+   is
+   begin
+      Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address)) := Value;
+      C.Page_Clean_Flags (Unsigned_8 (Shift_Right (Address, 8) and 16#FF#)) :=
+        Page_Flag_Reset;
+      --  Clear page clean flag so video can refresh any changed regions
+   end Mem_Write;
 
    ---------------
    -- Is_Apple2 --
    ---------------
 
-   function Is_Apple2 return Boolean is
+   function Is_Apple2 (C : Apple2_Base) return Boolean is
    begin
-      return Machine_Type < Apple_2e;
+      return C.Model < Apple_2e;
    end Is_Apple2;
 
-   ----------------------
-   -- Get_Machine_Type --
-   ----------------------
+   -----------------------
+   -- Get_Apple_2_Model --
+   -----------------------
 
-   function Get_Machine_Type return Apple_2_Type is
+   function Get_Apple_2_Model (C : Apple2_Base) return Apple_2_Model is
    begin
-      return Machine_Type;
-   end Get_Machine_Type;
+      return C.Model;
+   end Get_Apple_2_Model;
 
-   ----------------------
-   -- Set_Machine_Type --
-   ----------------------
+   -----------------------
+   -- Set_Apple_2_Model --
+   -----------------------
 
-   procedure Set_Machine_Type (New_Type : Apple_2_Type) is
+   procedure Set_Apple_2_Model
+     (C : in out Apple2_Base; New_Type : Apple_2_Model)
+   is
    begin
-      Machine_Type := New_Type;
-   end Set_Machine_Type;
+      C.Model := New_Type;
+   end Set_Apple_2_Model;
+
+   -----------------
+   -- CPU_Execute --
+   -----------------
+
+   procedure CPU_Execute
+     (C            : in out Apple2_Base; Mem : not null access RAM_All_Banks;
+      Total_Cycles :        Natural)
+   is
+   begin
+      if C.Model = Apple_2e_Enhanced then
+         CPU_Execute_WDC_65C02 (CPU_6502_Series (C), Mem, Total_Cycles);
+      else
+         CPU_Execute_MOS_6502 (CPU_6502_Series (C), Mem, Total_Cycles);
+      end if;
+   end CPU_Execute;
 
 end Apple2;

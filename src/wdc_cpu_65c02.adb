@@ -20,44 +20,20 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package body Apple2.Joystick with
+package body WDC_CPU_65C02 with
   SPARK_Mode
 is
 
-   ---------------------
-   -- Joy_Read_Button --
-   ---------------------
+   ---------------------------
+   -- CPU_Execute_WDC_65C02 --
+   ---------------------------
 
-   procedure Joy_Read_Button
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
-   is
-      pragma Unreferenced (Address, Cycles_Left, C);
-   begin
-      Read_Value := 0;  --  TODO: add implementation
-   end Joy_Read_Button;
-
-   -----------------------
-   -- Joy_Read_Position --
-   -----------------------
-
-   procedure Joy_Read_Position
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
-   is
-      pragma Unreferenced (Address, Cycles_Left, C);
-   begin
-      Read_Value := 0;  --  TODO: add implementation
-   end Joy_Read_Position;
-
-   ---------------------
-   -- Joy_Reset_Position --
-   ---------------------
-
-   procedure Joy_Reset_Position (C : in out Apple2_Base; Cycles_Left : Natural)
+   procedure CPU_Execute_WDC_65C02
+     (C            : in out CPU_6502_Series; Mem : access RAM_All_Banks;
+      Total_Cycles :        Natural)
    is
    begin
       null;  --  TODO: add implementation
-   end Joy_Reset_Position;
+   end CPU_Execute_WDC_65C02;
 
-end Apple2.Joystick;
+end WDC_CPU_65C02;

@@ -1,5 +1,3 @@
-pragma SPARK_Mode;
-
 --  AppleWin : An Apple //e emulator for Windows
 --
 --  Copyright (C) 1994-1996, Michael O'Brien
@@ -22,12 +20,15 @@ pragma SPARK_Mode;
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package Apple2.Printer is
+package Apple2.Printer with
+  SPARK_Mode
+is
 
-   procedure Print_Status (Read_Value : out Value_8_Bit);
+   procedure Print_Status
+     (C : in out Apple2_Base; Read_Value : out Unsigned_8);
    --  Return the printer status (currently always returns 16#FF#)
 
-   procedure Print_Transmit (Write_Value : Value_8_Bit);
+   procedure Print_Transmit (C : in out Apple2_Base; Write_Value : Unsigned_8);
    --  Write a byte to the printer log file
 
 end Apple2.Printer;
