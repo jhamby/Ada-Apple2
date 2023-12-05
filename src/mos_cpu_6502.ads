@@ -20,7 +20,8 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-with Emu;        use Emu;
+with Emu; use Emu;
+
 with Emu.Memory; use Emu.Memory;
 
 with Interfaces; use Interfaces;

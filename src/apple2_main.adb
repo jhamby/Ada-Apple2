@@ -12,7 +12,7 @@ with Emu.Memory; use Emu.Memory;
 
 with Interfaces; use Interfaces;
 
-procedure Main is
+procedure Apple2_Main is
 
    type Global_RAM_Access is access RAM_All_Banks;
 
@@ -76,4 +76,4 @@ begin
       end case;
    end loop;
 
-end Main;
+end Apple2_Main;
