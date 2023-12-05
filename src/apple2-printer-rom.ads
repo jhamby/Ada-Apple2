@@ -2,8 +2,6 @@ pragma Style_Checks (Off);
 
 --  Apple II parallel printer card ROM (Copyright?)
 
-with Emu; use Emu;
-
 package Apple2.Printer.ROM with
   SPARK_Mode
 is

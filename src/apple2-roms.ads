@@ -2,8 +2,6 @@ pragma Style_Checks (Off);
 
 --  Apple II ROMs for emulator (Copyright Apple, Inc.)
 
-with Emu; use Emu;
-
 package Apple2.ROMs with
   SPARK_Mode
 is

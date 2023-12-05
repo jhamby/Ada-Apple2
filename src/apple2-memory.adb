@@ -58,13 +58,13 @@ is
       then
          Read_Value :=
            Mem_Read
-             (C, Mem, C.Mem_Read_Bank (Unsigned_8 (Shift_Right (Address, 8))),
+             (Mem, C.Mem_Read_Bank (Unsigned_8 (Shift_Right (Address, 8))),
               Address - 16#1000#);
          --  Read $Cxxx region of RAM at $Dxxx
       elsif (Address and 16#F000#) /= 16#C000# then
          Read_Value :=
            Mem_Read
-             (C, Mem, C.Mem_Read_Bank (Unsigned_8 (Shift_Right (Address, 8))),
+             (Mem, C.Mem_Read_Bank (Unsigned_8 (Shift_Right (Address, 8))),
               Address);
       else
          Mem_IO_Read_Cxxx (C, Mem, Address, Read_Value, Cycles_Left);
@@ -129,7 +129,7 @@ is
    --  Speaker
 
    procedure IO_Read_C05x
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
    pragma Inline (IO_Read_C05x);
@@ -142,14 +142,14 @@ is
    --  Video / Memory
 
    procedure IO_Read_C06x
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
    pragma Inline (IO_Read_C06x);
    --  Joystick
 
    procedure IO_Read_C07x
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
    pragma Inline (IO_Read_C07x);
@@ -162,7 +162,7 @@ is
    --  Joystick / RAMWorks
 
    procedure IO_Read_C1xx
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
    pragma Inline (IO_Read_C1xx);
@@ -201,7 +201,7 @@ is
    --  Memory mode is slot CX ROM
 
    procedure Mem_Set_Paging
-     (C          : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access RAM_All_Banks;
       Address    :        Unsigned_16; Write_Value : Unsigned_8;
       Read_Value :    out Unsigned_8; Cycles_Left : Natural);
    --  Set or get memory address associated with paging
@@ -218,7 +218,7 @@ is
    ------------------
 
    procedure IO_Read_Null
-     (C          : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Read_Value :    out Unsigned_8; Cycles_Left : Natural)
    is
    begin
@@ -324,7 +324,7 @@ is
    ------------------
 
    procedure IO_Read_C05x
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
@@ -373,7 +373,7 @@ is
    ------------------
 
    procedure IO_Read_C06x
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
@@ -399,7 +399,7 @@ is
    ------------------
 
    procedure IO_Read_C07x
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
@@ -449,7 +449,7 @@ is
    ----------------------
 
    procedure Mem_IO_Read_Cxxx
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
@@ -758,7 +758,7 @@ is
       else
          Read_Value :=
            Mem_Read
-             (C, Mem, C.Mem_Read_Bank (Unsigned_8 (Shift_Right (Address, 8))),
+             (Mem, C.Mem_Read_Bank (Unsigned_8 (Shift_Right (Address, 8))),
               Address);
       end if;
    end IO_Read_C1xx;
@@ -976,7 +976,7 @@ is
    ---------------------------
 
    procedure Mem_Read_Floating_Bus
-     (C          : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Read_Value :    out Unsigned_8; Executed_Cycles : Natural)
    is
       VBL_Bar_Ignore : Boolean;
@@ -985,7 +985,7 @@ is
    begin
       Video_Get_Scanner_Address
         (Apple2_Base (C), VBL_Bar_Ignore, Bank, Address, Executed_Cycles);
-      Read_Value := Mem_Read (C, Mem, Bank, Address);
+      Read_Value := Mem_Read (Mem, Bank, Address);
    end Mem_Read_Floating_Bus;
 
    --------------------------------------
@@ -993,7 +993,7 @@ is
    --------------------------------------
 
    procedure Mem_Read_Floating_Bus
-     (C               : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       High_Bit        :        Boolean; Read_Value : out Unsigned_8;
       Executed_Cycles :        Natural)
    is

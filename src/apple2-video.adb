@@ -38,6 +38,7 @@ is
    --------------------
 
    procedure Video_Set_Mode (C : in out Apple2_Base; Address : Unsigned_16) is
+      pragma Unreferenced (C, Address);
    begin
       null;  --  TODO: add implementation
    end Video_Set_Mode;

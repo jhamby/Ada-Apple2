@@ -216,8 +216,8 @@ is
    --  This record holds the state for Apple IIe and devices, but not RAM
 
    function Mem_Read
-     (C    : Apple2_Base; Mem : not null access RAM_All_Banks;
-      Bank : RAM_Bank_Index; Address : Unsigned_16) return Unsigned_8;
+     (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
+      Address : Unsigned_16) return Unsigned_8;
    pragma Inline (Mem_Read);
    --  Read a byte from memory by bank and 16-bit address
 

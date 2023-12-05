@@ -2,8 +2,6 @@ pragma Style_Checks (Off);
 
 --  Apple Disk ][ card ROM (Copyright Apple, Inc.)
 
-with Emu; use Emu;
-
 package Apple2.Disk.ROM with
   SPARK_Mode
 is

@@ -2,8 +2,6 @@ pragma Style_Checks (Off);
 
 --  Apple II Super Serial Card ROM (Copyright Apple, Inc.)
 
-with Emu; use Emu;
-
 package Apple2.Serial.ROM with
   SPARK_Mode
 is

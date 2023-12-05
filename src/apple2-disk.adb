@@ -29,7 +29,7 @@ is
    ------------------
 
    procedure Disk_IO_Read
-     (C           : in out Apple2_Base; Mem : access RAM_All_Banks;
+     (C           : in out Apple2_Base; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
@@ -43,10 +43,10 @@ is
    -------------------
 
    procedure Disk_IO_Write
-     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+     (C       : in out Apple2_Base; Mem : not null access RAM_All_Banks;
       Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural)
    is
-      pragma Unreferenced (Address, Cycles_Left, C, Mem);
+      pragma Unreferenced (Address, Cycles_Left, C, Mem, Write_Value);
    begin
       null;  --  TODO: add implementation
    end Disk_IO_Write;

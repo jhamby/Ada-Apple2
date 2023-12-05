@@ -84,12 +84,12 @@ is
    --  Initialize ROMs and clear RAM
 
    procedure Mem_Read_Floating_Bus
-     (C          : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Read_Value :    out Unsigned_8; Executed_Cycles : Natural);
    --  Read floating bus address and advance cycle counter
 
    procedure Mem_Read_Floating_Bus
-     (C               : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       High_Bit        :        Boolean; Read_Value : out Unsigned_8;
       Executed_Cycles :        Natural);
    --  Read floating bus address, replacing high bit of result
@@ -116,7 +116,7 @@ is
    --  Memory mode is high RAM bank 2 (used by Mem_IO_Read & Write)
 
    procedure IO_Read_Null
-     (C          : in out Computer; Mem : not null access RAM_All_Banks;
+     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Read_Value :    out Unsigned_8; Cycles_Left : Natural);
    pragma Inline (IO_Read_Null);
    --  Default I/O read procedure (count cycles, read floating bus)

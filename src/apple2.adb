@@ -20,8 +20,6 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-with Interfaces; use Interfaces;
-
 with WDC_CPU_65C02; use WDC_CPU_65C02;
 
 package body Apple2 with
@@ -33,8 +31,8 @@ is
    --------------
 
    function Mem_Read
-     (C    : Apple2_Base; Mem : not null access RAM_All_Banks;
-      Bank : RAM_Bank_Index; Address : Unsigned_16) return Unsigned_8
+     (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
+      Address : Unsigned_16) return Unsigned_8
    is
    begin
       return Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address));

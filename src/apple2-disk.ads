@@ -25,13 +25,13 @@ package Apple2.Disk with
 is
 
    procedure Disk_IO_Read
-     (C           : in out Apple2_Base; Mem : access RAM_All_Banks;
+     (C           : in out Apple2_Base; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
    --  Read from the Disk ][ I/O space
 
    procedure Disk_IO_Write
-     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+     (C       : in out Apple2_Base; Mem : not null access RAM_All_Banks;
       Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural);
    --  Write to the Disk ][ I/O space
 

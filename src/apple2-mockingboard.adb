@@ -29,7 +29,7 @@ is
    ---------------
 
    procedure Phasor_IO
-     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+     (C : in out Apple2_Base; Mem : not null access constant RAM_All_Banks;
       Address :        Unsigned_16)
    is
    begin
@@ -42,11 +42,11 @@ is
    -------------
 
    procedure MB_Read
-     (C           : in out Apple2_Base; Mem : access RAM_All_Banks;
+     (C : in out Apple2_Base; Mem : not null access constant RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
-      pragma Unreferenced (Address);
+      pragma Unreferenced (Address, Mem);
    begin
       CPU_Calc_Cycles (C, Cycles_Left);
       Read_Value := 0;
@@ -58,10 +58,10 @@ is
    --------------
 
    procedure MB_Write
-     (C       : in out Apple2_Base; Mem : access RAM_All_Banks;
+     (C : in out Apple2_Base; Mem : not null access constant RAM_All_Banks;
       Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural)
    is
-      pragma Unreferenced (Address, Write_Value);
+      pragma Unreferenced (Address, Mem, Write_Value);
    begin
       CPU_Calc_Cycles (C, Cycles_Left);
       --  TODO: add implementation
