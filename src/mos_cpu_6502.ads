@@ -51,7 +51,7 @@ is
 
       SP : Unsigned_16 := 16#01FF#;  -- stack pointer
 
-      Jammed : Boolean := False;  -- CPU has jammed (NMOS 6502 only)
+      Halt_Opcode : Unsigned_8 := 0;  -- illegal opcode halt (NMOS 6502 only)
 
    end record;
    --  Inherited by computers using an MOS 6502, WDC 65C02, or similar

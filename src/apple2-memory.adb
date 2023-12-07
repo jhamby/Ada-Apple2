@@ -129,7 +129,7 @@ is
    --  Speaker
 
    procedure IO_Read_C05x
-     (C : in out Computer; Mem : not null access RAM_All_Banks;
+     (C           : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
    pragma Inline (IO_Read_C05x);
@@ -162,7 +162,7 @@ is
    --  Joystick / RAMWorks
 
    procedure IO_Read_C1xx
-     (C : in out Computer; Mem : not null access RAM_All_Banks;
+     (C           : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
    pragma Inline (IO_Read_C1xx);
@@ -201,7 +201,7 @@ is
    --  Memory mode is slot CX ROM
 
    procedure Mem_Set_Paging
-     (C : in out Computer; Mem : not null access RAM_All_Banks;
+     (C          : in out Computer; Mem : not null access RAM_All_Banks;
       Address    :        Unsigned_16; Write_Value : Unsigned_8;
       Read_Value :    out Unsigned_8; Cycles_Left : Natural);
    --  Set or get memory address associated with paging
@@ -324,7 +324,7 @@ is
    ------------------
 
    procedure IO_Read_C05x
-     (C : in out Computer; Mem : not null access RAM_All_Banks;
+     (C           : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
@@ -449,7 +449,7 @@ is
    ----------------------
 
    procedure Mem_IO_Read_Cxxx
-     (C : in out Computer; Mem : not null access RAM_All_Banks;
+     (C           : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural)
    is
@@ -1122,26 +1122,35 @@ is
    begin
       --  Initialize the paging tables
 
-      C.Mem_Read_Bank := (others => RAM_Bank_Main);
       --  Note: reads from $C000..$CFFF always get special handling
+      C.Mem_Read_Bank := (others => RAM_Bank_Main);
 
-      C.Mem_Write_Bank := (others => RAM_Bank_Main);
       --  Note: writes to $C000..$CFFF always get special handling
+      C.Mem_Write_Bank := (others => RAM_Bank_Main);
 
       --  Initialize the first two RAM banks
-      Mem (16#00_0000# .. 16#00_FFFF#) := (others => 0);
-      Mem (16#03_0000# .. 16#03_FFFF#) := (others => 0);
-
       if C.Mem_Init_Pattern = Pattern_FF_FF_00_00 then
          declare
             I : Natural := 0;
          begin
-            while I < 16#C000# loop
-               Mem (I)     := 16#FF#;
-               Mem (I + 1) := 16#FF#;
-               I           := I + 4;
+            --  Pattern fill first 64K of RAM
+            while I <= 16#FFFF# loop
+               Mem (I .. I + 3) := (16#FF#, 16#FF#, 16#00#, 16#00#);
+
+               I := I + 4;
+            end loop;
+
+            --  Pattern fill second 64K of RAM (ignoring the RAMWorks banks)
+            I := 16#03_0000#;
+            while I <= 16#03_FFFF# loop
+               Mem (I .. I + 3) := (16#FF#, 16#FF#, 16#00#, 16#00#);
+
+               I := I + 4;
             end loop;
          end;
+      else
+         Mem (16#00_0000# .. 16#00_FFFF#) := (others => 0);
+         Mem (16#03_0000# .. 16#03_FFFF#) := (others => 0);
       end if;
 
       --  Initialize paging, filling in the 64k memory image
