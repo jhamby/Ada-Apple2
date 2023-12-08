@@ -100,104 +100,84 @@ is
    end Mem_IO_Write;
 
    procedure IO_Read_C00x (C : in out Computer; Read_Value : out Unsigned_8);
-   pragma Inline (IO_Read_C00x);
    --  Keyboard
 
    procedure IO_Write_C00x
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
       Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural);
-   pragma Inline (IO_Write_C00x);
    --  Memory / Video
 
    procedure IO_Read_C01x
      (C : in out Computer; Address : Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
-   pragma Inline (IO_Read_C01x);
    --  Memory / Video
 
    procedure IO_Write_C01x (C : in out Computer);
-   pragma Inline (IO_Write_C01x);
    --  Keyboard
 
    procedure IO_Read_C03x
      (C : in out Computer; Read_Value : out Unsigned_8; Cycles_Left : Natural);
-   pragma Inline (IO_Read_C03x);
    --  Speaker
 
    procedure IO_Write_C03x (C : in out Computer; Cycles_Left : Natural);
-   pragma Inline (IO_Write_C03x);
    --  Speaker
 
    procedure IO_Read_C05x
      (C           : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
-   pragma Inline (IO_Read_C05x);
    --  Video
 
    procedure IO_Write_C05x
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
       Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural);
-   pragma Inline (IO_Write_C05x);
    --  Video / Memory
 
    procedure IO_Read_C06x
      (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
-   pragma Inline (IO_Read_C06x);
    --  Joystick
 
    procedure IO_Read_C07x
      (C : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
-   pragma Inline (IO_Read_C07x);
    --  Joystick / Video
 
    procedure IO_Write_C07x
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
       Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural);
-   pragma Inline (IO_Write_C07x);
    --  Joystick / RAMWorks
 
    procedure IO_Read_C1xx
      (C           : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
       Cycles_Left :        Natural);
-   pragma Inline (IO_Read_C1xx);
    --  Expansion ROM select
 
    function Mode_Alt_ZP (C : Computer) return Boolean;
-   pragma Inline (Mode_Alt_ZP);
    --  Memory mode is alt zero page
 
    function Mode_Aux_Read (C : Computer) return Boolean;
-   pragma Inline (Mode_Aux_Read);
    --  Memory mode is aux read
 
    function Mode_Aux_Write (C : Computer) return Boolean;
-   pragma Inline (Mode_Aux_Write);
    --  Memory mode is aux write
 
    function Mode_High_RAM (C : Computer) return Boolean;
-   pragma Inline (Mode_High_RAM);
    --  Memory mode is high RAM
 
    function Mode_Hi_Res (C : Computer) return Boolean;
-   pragma Inline (Mode_Hi_Res);
    --  Memory mode is hi-res
 
    function Mode_Page_2 (C : Computer) return Boolean;
-   pragma Inline (Mode_Page_2);
    --  Memory mode is page 2
 
    function Mode_Slot_C3_ROM (C : Computer) return Boolean;
-   pragma Inline (Mode_Slot_C3_ROM);
    --  Memory mode is slot C3 ROM
 
    function Mode_Slot_CX_ROM (C : Computer) return Boolean;
-   pragma Inline (Mode_Slot_CX_ROM);
    --  Memory mode is slot CX ROM
 
    procedure Mem_Set_Paging
@@ -212,6 +192,29 @@ is
    procedure Mem_Check_Paging
      (C : Computer; Address : Unsigned_16; Read_Value : out Unsigned_8);
    --  Read byte containing paging mode and keyboard scan code
+
+   --  Inline pragmas for procedures and functions
+
+   pragma Inline (IO_Read_C00x);
+   pragma Inline (IO_Write_C00x);
+   pragma Inline (IO_Read_C01x);
+   pragma Inline (IO_Write_C01x);
+   pragma Inline (IO_Read_C03x);
+   pragma Inline (IO_Write_C03x);
+   pragma Inline (IO_Read_C05x);
+   pragma Inline (IO_Write_C05x);
+   pragma Inline (IO_Read_C06x);
+   pragma Inline (IO_Read_C07x);
+   pragma Inline (IO_Write_C07x);
+   pragma Inline (IO_Read_C1xx);
+   pragma Inline (Mode_Alt_ZP);
+   pragma Inline (Mode_Aux_Read);
+   pragma Inline (Mode_Aux_Write);
+   pragma Inline (Mode_High_RAM);
+   pragma Inline (Mode_Hi_Res);
+   pragma Inline (Mode_Page_2);
+   pragma Inline (Mode_Slot_C3_ROM);
+   pragma Inline (Mode_Slot_CX_ROM);
 
    ------------------
    -- IO_Read_Null --

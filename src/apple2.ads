@@ -32,8 +32,19 @@ package Apple2 with
   SPARK_Mode
 is
 
+   -----------------------------------------
+   -- Apple II/II+/IIe/etc. variant types --
+   -----------------------------------------
+
    type Apple_2_Model is (Apple_2, Apple_2_Plus, Apple_2e, Apple_2e_Enhanced);
    --  A2 model: Apple II, II Plus, IIe, or IIe Enhanced (WDC 65C02)
+
+   type Video_Standard_Type is (NTSC, PAL);
+   --  Use NTSC or PAL timings for video
+
+   ----------------------
+   -- System ROM sizes --
+   ----------------------
 
    Cx_ROM_Size : constant := 4 * 1_024; --  4K Cx ROM size
 
@@ -42,40 +53,46 @@ is
    Apple_2e_ROM_Size : constant := Apple_2_ROM_Size + Cx_ROM_Size;
    --  16K ROM (IIe / IIe Enhanced)
 
-   M14 : constant Long_Float := 157_500_000.0 / 11.0;
+   ------------------------------------------------------
+   -- Clock speeds / durations for NTSC & PAL machines --
+   ------------------------------------------------------
+
+   NTSC_M14 : constant Long_Float := 157_500_000.0 / 11.0;
    --  14.3181818... * 10^6
 
-   Clock_6502 : constant Long_Float := (M14 * 65.0) / 912.0;
+   NTSC_Clock_6502 : constant Long_Float := (NTSC_M14 * 65.0) / 912.0;
    --  65 cycles per 912 14M clocks
 
-   Clock_Z80 : constant Long_Float := Clock_6502 * 2.0;
+   NTSC_Clock_Z80 : constant Long_Float := NTSC_Clock_6502 * 2.0;
    --  effective Z80 clock rate is 2.041 MHz
 
    Cycles_Per_Line : constant := 65;
    --  25 cycles of HBL & 40 cycles of HBL
 
-   Visible_Lines_Per_Frame : constant := 64 * 3; --  192
-
-   Lines_Per_Frame : constant := 262;
+   NTSC_Lines_Per_Frame : constant := 262;
    --  64 in each third of the screen & 70 in VBL
 
-   Clocks_Per_Frame : constant := Cycles_Per_Line * Lines_Per_Frame;
+   NTSC_Clocks_Per_Frame : constant := Cycles_Per_Line * NTSC_Lines_Per_Frame;
    --  17030
 
-   Num_Slots : constant := 8;
+   PAL_Lines_Per_Frame : constant := 312;
+   --  64 in each third of the screen & 120 in VBL
 
-   type Slot_Range is range 0 .. Num_Slots - 1;
+   PAL_Clocks_Per_Frame : constant := Cycles_Per_Line * PAL_Lines_Per_Frame;
+   --  17030
 
-   type Expansion_ROM_Type is (ROM_None, ROM_Internal, ROM_Peripheral);
-   --  Select the enabled ROM at $C100..$CFFF
+   -----------------------------------------
+   -- Emulator app state and default keys --
+   -----------------------------------------
 
-   --  Use a base freq so that the OS is less likely to need to resample.
-   --  Assume base freqs are 44.1KHz & 48KHz.
+   --  Use a base audio freq so the OS is less likely to need to resample.
+   --  Assume base freqs are 44.1 kHz & 48 kHz.
 
-   Speaker_Sample_Rate : constant := 44_100;
-   --  for Apple ][ speaker
-   Sample_Rate         : constant := 44_100;
-   --  for Phasor/Mockingboard
+   Max_Sample_Rate : constant := 48_000;
+   --  Try 48 kHz sample rate first
+
+   Fallback_Sample_Rate : constant := 44_100;
+   --  Try 44.1 kHz as the fallback sample rate (or else no audio)
 
    type App_Mode is
      (Logo,
@@ -84,9 +101,9 @@ is
       Debug,      --  6502 paused
       Stepping);  --  6502 running at full speed (breakpoints always active)
 
-   Speed_Min    : constant := 0;
-   Speed_Normal : constant := 10;
-   Speed_Max    : constant := 40;
+   Speed_Min    : constant := 1;   --  0.1 MHz min speed
+   Speed_Normal : constant := 10;  --  1.0 MHz base speed
+   Speed_Max    : constant := 40;  --  4.0 MHz max speed
 
    type Draw_Config_Type is mod 256;
 
@@ -110,6 +127,17 @@ is
    Func_Key_Quit        : constant Func_Key_Type := 11;
    Func_Key_Save_State  : constant Func_Key_Type := 10;
    Func_Key_Load_State  : constant Func_Key_Type := 9;
+
+   ----------------------------------
+   -- Apple II series system state --
+   ----------------------------------
+
+   Num_Slots : constant := 8;
+
+   type Slot_Range is range 0 .. Num_Slots - 1;
+
+   type Expansion_ROM_Type is (ROM_None, ROM_Internal, ROM_Peripheral);
+   --  Select the enabled ROM at $C100..$CFFF
 
    type Mem_Flag_Type is mod 2**16;
    --  Memory map behavior flags
@@ -137,20 +165,11 @@ is
 
    Vid_Flag_80_Column : constant Video_Flag_Type := 16#0001#;
    Vid_Flag_Dbl_Hires : constant Video_Flag_Type := 16#0002#;
-   pragma Unreferenced (Vid_Flag_Dbl_Hires);
-   Vid_Flag_Hires : constant Video_Flag_Type := 16#0004#;
-   pragma Unreferenced (Vid_Flag_Hires);
-   Vid_Flag_Mask_2 : constant Video_Flag_Type := 16#0008#;
-   pragma Unreferenced (Vid_Flag_Mask_2);
-   Vid_Flag_Mixed : constant Video_Flag_Type := 16#0010#;
-   pragma Unreferenced (Vid_Flag_Mixed);
-   Vid_Flag_Page_2 : constant Video_Flag_Type := 16#0020#;
-   pragma Unreferenced (Vid_Flag_Page_2);
-   Vid_Flag_Text : constant Video_Flag_Type := 16#0040#;
-   pragma Unreferenced (Vid_Flag_Text);
-
-   type Video_Standard_Type is (NTSC, PAL);
-   --  Use NTSC or PAL timings for video
+   Vid_Flag_Hires     : constant Video_Flag_Type := 16#0004#;
+   Vid_Flag_Mask_2    : constant Video_Flag_Type := 16#0008#;
+   Vid_Flag_Mixed     : constant Video_Flag_Type := 16#0010#;
+   Vid_Flag_Page_2    : constant Video_Flag_Type := 16#0020#;
+   Vid_Flag_Text      : constant Video_Flag_Type := 16#0040#;
 
    type Mem_Page_Table is array (Unsigned_8) of RAM_Bank_Index;
    --  Table of RAM bank to use within RAM_Pages for each page in 64K
@@ -213,37 +232,31 @@ is
       Video_Standard : Video_Standard_Type := NTSC;
 
    end record;
-   --  This record holds the state for Apple IIe and devices, but not RAM
+   --  Holds the state for an Apple II variant with devices, except RAM/ROM
 
    function Mem_Read
      (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
       Address : Unsigned_16) return Unsigned_8;
-   pragma Inline (Mem_Read);
    --  Read a byte from memory by bank and 16-bit address
 
    procedure Mem_Write
      (C    : in out Apple2_Base; Mem : not null access RAM_All_Banks;
       Bank :        RAM_Bank_Index; Address : Unsigned_16; Value : Unsigned_8);
-   pragma Inline (Mem_Write);
    --  Write a byte to memory by bank and 16-bit address
 
    function Is_Apple2 (C : Apple2_Base) return Boolean;
-   pragma Inline (Is_Apple2);
    --  Is this an original Apple II or II Plus?
 
    function Get_Apple_2_Model (C : Apple2_Base) return Apple_2_Model;
-   pragma Inline (Get_Apple_2_Model);
    --  Returns the current machine type
 
    procedure Set_Apple_2_Model
      (C : in out Apple2_Base; New_Type : Apple_2_Model);
-   pragma Inline (Set_Apple_2_Model);
    --  Change machine type from the default Apple IIe Enhanced
 
    procedure CPU_Execute
      (C            : in out Apple2_Base; Mem : not null access RAM_All_Banks;
       Total_Cycles :        Natural);
-   pragma Inline (CPU_Execute);
    --  Emulate the CPU for the specified number of cycles (6502 / 65C02)
 
    -----------------------------------------------------------
@@ -297,5 +310,24 @@ is
 
    Status_Panel_Width  : constant := 100;
    Status_Panel_Height : constant := 48;
+
+private
+   --  Inline pragmas for procedures and functions
+
+   pragma Inline (Mem_Read);
+   pragma Inline (Mem_Write);
+   pragma Inline (Is_Apple2);
+   pragma Inline (Get_Apple_2_Model);
+   pragma Inline (Set_Apple_2_Model);
+   pragma Inline (CPU_Execute);
+
+   --  TODO: Remove the following pragmas when video emulation is ported
+
+   pragma Unreferenced (Vid_Flag_Dbl_Hires);
+   pragma Unreferenced (Vid_Flag_Hires);
+   pragma Unreferenced (Vid_Flag_Mask_2);
+   pragma Unreferenced (Vid_Flag_Mixed);
+   pragma Unreferenced (Vid_Flag_Page_2);
+   pragma Unreferenced (Vid_Flag_Text);
 
 end Apple2;

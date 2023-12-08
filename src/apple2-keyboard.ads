@@ -33,7 +33,11 @@ is
    --  Read keyboard flag (updates state)
 
    function Keyb_Get_Keycode (C : Apple2_Base) return Unsigned_8;
-   pragma Inline (Keyb_Get_Keycode);
    --  Read current keycode
+
+private
+   --  Inline pragmas for procedures and functions
+
+   pragma Inline (Keyb_Get_Keycode);
 
 end Apple2.Keyboard;
