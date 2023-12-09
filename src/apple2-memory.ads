@@ -60,18 +60,23 @@ is
    procedure Mem_IO_Read_Cxxx
      (C           : in out Computer; Mem : not null access RAM_All_Banks;
       Address     :        Unsigned_16; Read_Value : out Unsigned_8;
-      Cycles_Left :        Natural);
+      Cycles_Left :        Natural) with
+     Inline;
    --  Read a byte from I/O space ($Cxxx)
 
    procedure Mem_IO_Write_Cxxx
-     (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural);
+     (C           : in out Computer; Mem : not null access RAM_All_Banks;
+      Address     :        Unsigned_16; Write_Value : Unsigned_8;
+      Cycles_Left :        Natural) with
+     Inline;
    --  Write a byte to I/O space ($Cxxx)
 
-   function Mem_Get_Mode (C : Computer) return Mem_Flag_Type;
+   function Mem_Get_Mode (C : Computer) return Mem_Flag_Type with
+     Inline;
    --  Get current memory mode flags
 
-   procedure Mem_Set_Mode (C : in out Computer; Mode : Mem_Flag_Type);
+   procedure Mem_Set_Mode (C : in out Computer; Mode : Mem_Flag_Type) with
+     Inline;
    --  Set current memory mode flags
 
    procedure Init_Apple2
@@ -99,34 +104,26 @@ is
    --    Soft-reset (Ctrl+Reset)
    --    Snapshot_Load_State()
 
-   function Mode_80_Store (C : Computer) return Boolean;
+   function Mode_80_Store (C : Computer) return Boolean with
+     Inline;
    --  Memory mode is 80 Store (used by Video)
 
-   function Mode_High_RAM_Write (C : Computer) return Boolean;
+   function Mode_High_RAM_Write (C : Computer) return Boolean with
+     Inline;
    --  Memory mode is high RAM write (used by Mem_IO_Write)
 
-   function Mode_High_RAM_Bank_2 (C : Computer) return Boolean;
+   function Mode_High_RAM_Bank_2 (C : Computer) return Boolean with
+     Inline;
    --  Memory mode is high RAM bank 2 (used by Mem_IO_Read & Write)
 
    procedure IO_Read_Null
      (C : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural);
+      Read_Value :    out Unsigned_8; Cycles_Left : Natural) with
+     Inline;
    --  Default I/O read procedure (count cycles, read floating bus)
 
-   procedure IO_Write_Null (C : in out Computer; Cycles_Left : Natural);
+   procedure IO_Write_Null (C : in out Computer; Cycles_Left : Natural) with
+     Inline;
    --  Default I/O write procedure (count cycles)
-
-private
-   --  Inline pragmas for procedures and functions
-
-   pragma Inline (Mem_IO_Read_Cxxx);
-   pragma Inline (Mem_IO_Write_Cxxx);
-   pragma Inline (Mem_Get_Mode);
-   pragma Inline (Mem_Set_Mode);
-   pragma Inline (Mode_80_Store);
-   pragma Inline (Mode_High_RAM_Write);
-   pragma Inline (Mode_High_RAM_Bank_2);
-   pragma Inline (IO_Read_Null);
-   pragma Inline (IO_Write_Null);
 
 end Apple2.Memory;

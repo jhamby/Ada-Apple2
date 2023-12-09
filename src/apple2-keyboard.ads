@@ -32,12 +32,8 @@ is
      (C : in out Apple2_Base; Read_Value : out Unsigned_8);
    --  Read keyboard flag (updates state)
 
-   function Keyb_Get_Keycode (C : Apple2_Base) return Unsigned_8;
+   function Keyb_Get_Keycode (C : Apple2_Base) return Unsigned_8 with
+     Inline;
    --  Read current keycode
-
-private
-   --  Inline pragmas for procedures and functions
-
-   pragma Inline (Keyb_Get_Keycode);
 
 end Apple2.Keyboard;

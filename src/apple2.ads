@@ -236,27 +236,33 @@ is
 
    function Mem_Read
      (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
-      Address : Unsigned_16) return Unsigned_8;
+      Address : Unsigned_16) return Unsigned_8 with
+     Inline;
    --  Read a byte from memory by bank and 16-bit address
 
    procedure Mem_Write
      (C    : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Bank :        RAM_Bank_Index; Address : Unsigned_16; Value : Unsigned_8);
+      Bank :    RAM_Bank_Index; Address : Unsigned_16; Value : Unsigned_8) with
+     Inline;
    --  Write a byte to memory by bank and 16-bit address
 
-   function Is_Apple2 (C : Apple2_Base) return Boolean;
+   function Is_Apple2 (C : Apple2_Base) return Boolean with
+     Inline;
    --  Is this an original Apple II or II Plus?
 
-   function Get_Apple_2_Model (C : Apple2_Base) return Apple_2_Model;
+   function Get_Apple_2_Model (C : Apple2_Base) return Apple_2_Model with
+     Inline;
    --  Returns the current machine type
 
    procedure Set_Apple_2_Model
-     (C : in out Apple2_Base; New_Type : Apple_2_Model);
+     (C : in out Apple2_Base; New_Type : Apple_2_Model) with
+     Inline;
    --  Change machine type from the default Apple IIe Enhanced
 
    procedure CPU_Execute
      (C            : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Total_Cycles :        Natural);
+      Total_Cycles :        Natural) with
+     Inline;
    --  Emulate the CPU for the specified number of cycles (6502 / 65C02)
 
    -----------------------------------------------------------
@@ -312,15 +318,6 @@ is
    Status_Panel_Height : constant := 48;
 
 private
-   --  Inline pragmas for procedures and functions
-
-   pragma Inline (Mem_Read);
-   pragma Inline (Mem_Write);
-   pragma Inline (Is_Apple2);
-   pragma Inline (Get_Apple_2_Model);
-   pragma Inline (Set_Apple_2_Model);
-   pragma Inline (CPU_Execute);
-
    --  TODO: Remove the following pragmas when video emulation is ported
 
    pragma Unreferenced (Vid_Flag_Dbl_Hires);
