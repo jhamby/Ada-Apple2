@@ -20,6 +20,8 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
 with Emu; use Emu;
 
 with Emu.Memory; use Emu.Memory;
@@ -27,6 +29,9 @@ with Emu.Memory; use Emu.Memory;
 with Interfaces; use Interfaces;
 
 with MOS_CPU_6502; use MOS_CPU_6502;
+
+with SDL.Inputs.Joysticks;
+with SDL.Video.Palettes; use SDL.Video.Palettes;
 
 package Apple2 with
   SPARK_Mode
@@ -37,10 +42,22 @@ is
    -----------------------------------------
 
    type Apple_2_Model is (Apple_2, Apple_2_Plus, Apple_2e, Apple_2e_Enhanced);
-   --  A2 model: Apple II, II Plus, IIe, or IIe Enhanced (WDC 65C02)
+   --  Apple II model: Apple II, II Plus, IIe, or IIe Enhanced (WDC 65C02)
+
+   for Apple_2_Model use
+     (Apple_2           => 0, Apple_2_Plus => 1, Apple_2e => 16,
+      Apple_2e_Enhanced => 17);
+   --  Define to use the same settings values as LinApple
+
+   type Video_Type_Type is
+     (Mono_Custom, Color_Standard, Color_Text_Optimized, Color_TV_Emu,
+      Color_Half_Shift_Dim, Mono_Amber, Mono_Green, Mono_White);
 
    type Video_Standard_Type is (NTSC, PAL);
    --  Use NTSC or PAL timings for video
+
+   type Sound_Card_Type is (Sound_Builtin, Sound_Mockingboard, Sound_Phasor);
+   --  Mockingboard, Phasor, or no sound card
 
    ----------------------
    -- System ROM sizes --
@@ -101,16 +118,18 @@ is
       Debug,      --  6502 paused
       Stepping);  --  6502 running at full speed (breakpoints always active)
 
-   Speed_Min    : constant := 1;   --  0.1 MHz min speed
-   Speed_Normal : constant := 10;  --  1.0 MHz base speed
-   Speed_Max    : constant := 40;  --  4.0 MHz max speed
+   type Apple_2_Speed is range 1 .. 40;  --  CPU MHz x10 = 0.1 .. 4.0 MHz
 
-   type Draw_Config_Type is mod 256;
+   Speed_Min    : constant Apple_2_Speed := 1;   --  0.1 MHz min speed
+   Speed_Normal : constant Apple_2_Speed := 10;  --  1.0 MHz base speed
+   Speed_Max    : constant Apple_2_Speed := 40;  --  4.0 MHz max speed
 
-   Draw_Background    : constant Draw_Config_Type := 16#01#;
-   Draw_LEDs          : constant Draw_Config_Type := 16#02#;
-   Draw_Title         : constant Draw_Config_Type := 16#04#;
-   Draw_Button_Drives : constant Draw_Config_Type := 16#08#;
+   type Draw_Config_Flags is mod 256;
+
+   Draw_Background    : constant Draw_Config_Flags := 16#01#;
+   Draw_LEDs          : constant Draw_Config_Flags := 16#02#;
+   Draw_Title         : constant Draw_Config_Flags := 16#04#;
+   Draw_Button_Drives : constant Draw_Config_Flags := 16#08#;
 
    type Func_Key_Type is range 0 .. 11;
    --  Function Keys F1 - F12
@@ -139,20 +158,20 @@ is
    type Expansion_ROM_Type is (ROM_None, ROM_Internal, ROM_Peripheral);
    --  Select the enabled ROM at $C100..$CFFF
 
-   type Mem_Flag_Type is mod 2**16;
+   type Mem_Mode_Flags is mod 2**16;
    --  Memory map behavior flags
 
-   Flag_80_Store        : constant Mem_Flag_Type := 16#0001#;
-   Flag_Alt_ZP          : constant Mem_Flag_Type := 16#0002#;
-   Flag_Aux_Read        : constant Mem_Flag_Type := 16#0004#;
-   Flag_Aux_Write       : constant Mem_Flag_Type := 16#0008#;
-   Flag_High_RAM_Bank_2 : constant Mem_Flag_Type := 16#0010#;
-   Flag_High_RAM        : constant Mem_Flag_Type := 16#0020#;
-   Flag_Hi_Res          : constant Mem_Flag_Type := 16#0040#;
-   Flag_Page_2          : constant Mem_Flag_Type := 16#0080#;
-   Flag_Slot_C3_ROM     : constant Mem_Flag_Type := 16#0100#;
-   Flag_Slot_CX_ROM     : constant Mem_Flag_Type := 16#0200#;
-   Flag_High_RAM_Write  : constant Mem_Flag_Type := 16#0400#;
+   Flag_80_Store        : constant Mem_Mode_Flags := 16#0001#;
+   Flag_Alt_ZP          : constant Mem_Mode_Flags := 16#0002#;
+   Flag_Aux_Read        : constant Mem_Mode_Flags := 16#0004#;
+   Flag_Aux_Write       : constant Mem_Mode_Flags := 16#0008#;
+   Flag_High_RAM_Bank_2 : constant Mem_Mode_Flags := 16#0010#;
+   Flag_High_RAM        : constant Mem_Mode_Flags := 16#0020#;
+   Flag_Hi_Res          : constant Mem_Mode_Flags := 16#0040#;
+   Flag_Page_2          : constant Mem_Mode_Flags := 16#0080#;
+   Flag_Slot_C3_ROM     : constant Mem_Mode_Flags := 16#0100#;
+   Flag_Slot_CX_ROM     : constant Mem_Mode_Flags := 16#0200#;
+   Flag_High_RAM_Write  : constant Mem_Mode_Flags := 16#0400#;
 
    type Mem_Init_Pattern_Type is (Pattern_Zero, Pattern_FF_FF_00_00);
 
@@ -161,31 +180,118 @@ is
    type Button_ID is (Button_0, Button_1);
    type Button_State is (Button_Up, Button_Down);
 
-   type Video_Flag_Type is mod 2**16;
+   type Video_Mode_Flags is mod 2**16;
 
-   Vid_Flag_80_Column : constant Video_Flag_Type := 16#0001#;
-   Vid_Flag_Dbl_Hires : constant Video_Flag_Type := 16#0002#;
-   Vid_Flag_Hires     : constant Video_Flag_Type := 16#0004#;
-   Vid_Flag_Mask_2    : constant Video_Flag_Type := 16#0008#;
-   Vid_Flag_Mixed     : constant Video_Flag_Type := 16#0010#;
-   Vid_Flag_Page_2    : constant Video_Flag_Type := 16#0020#;
-   Vid_Flag_Text      : constant Video_Flag_Type := 16#0040#;
+   Video_Flag_80_Column : constant Video_Mode_Flags := 16#0001#;
+   Video_Flag_Dbl_Hires : constant Video_Mode_Flags := 16#0002#;
+   Video_Flag_Hires     : constant Video_Mode_Flags := 16#0004#;
+   Video_Flag_Mask_2    : constant Video_Mode_Flags := 16#0008#;
+   Video_Flag_Mixed     : constant Video_Mode_Flags := 16#0010#;
+   Video_Flag_Page_2    : constant Video_Mode_Flags := 16#0020#;
+   Video_Flag_Text      : constant Video_Mode_Flags := 16#0040#;
 
    type Mem_Page_Table is array (Unsigned_8) of RAM_Bank_Index;
    --  Table of RAM bank to use within RAM_Pages for each page in 64K
 
-   type Page_Flag_Type is mod 2**8;
+   type Page_Flags is mod 2**8;
    --  Flags for each page, cleared when written to by any source
 
-   Page_Flag_Reset : constant Page_Flag_Type := 16#00#;
+   Page_Flag_Reset : constant Page_Flags := 16#00#;
    --  clear all flags on any page write
 
-   Page_Flag_Video : constant Page_Flag_Type := 16#01#;
+   Page_Flag_Video : constant Page_Flags := 16#01#;
    --  set when screen update uses this page for the image
 
-   type Page_Clean_Table is array (Unsigned_8) of Page_Flag_Type;
+   type Page_Clean_Table is array (Unsigned_8) of Page_Flags;
    --  Table of one-bit usage flags for each 256-byte page in 64 KB
    --  Video uses this to detect when screen memory changes
+
+   type Joystick_Device is
+     (Joy_None, Joy_Joystick, Joy_Keyboard, Joy_Keyboard_Centered, Joy_Mouse);
+   --  Apple joysticks can be emulated with joystick, keyboard, or mouse
+
+   type Joystick_Range is range 0 .. 1;
+   --  Apple joystick numbers go from 0 to 1
+
+   type Joystick_Devices is array (Joystick_Range) of Joystick_Device;
+
+   type Joystick_Button_Range is range 0 .. 2;
+
+   type Joystick_Button_States is array (Joystick_Button_Range) of Boolean;
+
+   type SDL_Joystick_Devices is
+     array (Joystick_Range) of SDL.Inputs.Joysticks.All_Devices;
+   --  For each Apple II joystick, either 0 or an SDLAda joystick ID (1 .. n)
+
+   type Disk_2_Range is range 0 .. 1;
+   --  Apple disk drive numbers go from 0 to 1
+
+   type Disk_2_Filenames is array (Disk_2_Range) of Unbounded_String;
+   --  Pathnames for the two emulated disk drives
+
+   -----------------------
+   -- Emulator Settings --
+   -----------------------
+
+   type Settings_Type is record
+
+      --  Emulator preferences
+
+      Slot_6_Dir, Save_State_Dir, Save_State_Filename : Unbounded_String;
+
+      Show_LEDs : Boolean := True;  --  show drive LEDs by default
+
+      Boot_At_Startup : Boolean := False;  --  false = show splash screen
+
+      Fullscreen : Boolean := False;  --  true = start in fullscreen mode
+
+      --  General emulation settings
+
+      Model : Apple_2_Model := Apple_2e_Enhanced;  --  computer type
+
+      Speed : Apple_2_Speed := Speed_Normal;  --  MHz x10
+
+      --  Video settings
+
+      Video_Type : Video_Type_Type := Color_Standard;
+
+      Video_Standard : Video_Standard_Type := NTSC;
+
+      Mono_Color : RGB_Colour := RGB_Colour'(16#C0#, 16#C0#, 16#C0#);
+
+      --  Audio settings
+
+      Sound_Card : Sound_Card_Type := Sound_Mockingboard;
+
+      --  Disk II settings
+
+      Disk_Image_Filenames : Disk_2_Filenames;
+
+      --  Keyboard settings
+
+      Keyboard_Rocker_Switch : Boolean := False;
+
+      --  Joystick / paddle settings
+
+      Joystick_Types : Joystick_Devices :=
+        Joystick_Devices'(Joy_Joystick, Joy_None);
+      --  Note: GNAT 13.2.0 (x86_64-pc-linux-gnu) crashes with "Storage_Error
+      --  stack overflow or erroneous memory access" if "Joystick_Devices'"
+      --  is removed from the assignment above! At least it works this way.
+
+      SDL_Joystick_IDs : SDL_Joystick_Devices := (others => 0);
+
+      --  Printer settings
+
+      Printer_Filename : Unbounded_String :=
+        To_Unbounded_String ("Printer.txt");
+
+      Printer_Idle_Timeout : Unsigned_32 := 10;
+
+      Printer_Append_To_File : Boolean := True;
+
+   end record;
+   --  All of the user settings that are saved to the config file
 
    -------------------------------------
    -- Apple II/II+/IIe Computer State --
@@ -193,9 +299,10 @@ is
 
    type Apple2_Base is abstract new CPU_6502_Series with record
 
-      Model : Apple_2_Model := Apple_2e_Enhanced;
+      Settings : Settings_Type;
+      --  All of the configuration settings saved to the registry
 
-      Mem_Mode : Mem_Flag_Type :=
+      Mem_Mode : Mem_Mode_Flags :=
         Flag_High_RAM_Bank_2 or Flag_Slot_CX_ROM or Flag_High_RAM_Write;
       --  Memory mode flags (initialized to startup value)
 
@@ -226,10 +333,11 @@ is
       Expansion_ROM : Expansion_ROM_Type := ROM_None;
       --  Select the enabled ROM at $C100 .. $CFFF
 
-      Video_Mode : Video_Flag_Type := 0;
+      Video_Mode : Video_Mode_Flags := 0;
       --  Current video mode
 
-      Video_Standard : Video_Standard_Type := NTSC;
+      Button_State : Joystick_Button_States := (others => False);
+      --  State of the three joystick buttons
 
    end record;
    --  Holds the state for an Apple II variant with devices, except RAM/ROM
@@ -254,11 +362,6 @@ is
      Inline;
    --  Returns the current machine type
 
-   procedure Set_Apple_2_Model
-     (C : in out Apple2_Base; New_Type : Apple_2_Model) with
-     Inline;
-   --  Change machine type from the default Apple IIe Enhanced
-
    procedure CPU_Execute
      (C            : in out Apple2_Base; Mem : not null access RAM_All_Banks;
       Total_Cycles :        Natural) with
@@ -277,41 +380,6 @@ is
    Title_Paused   : constant String := " Paused ";
    Title_Stepping : constant String := "Stepping";
 
-   --  Configuration
-
-   Reg_Value_Apple_2_Type        : constant String := "Apple2 Type";
-   Reg_Value_Speaker_Volume      : constant String := "Speaker Volume";
-   Reg_Value_MB_Volume           : constant String := "Mockingboard Volume";
-   Reg_Value_Sound_Card_Type     : constant String := "Soundcard Type";
-   Reg_Value_Keyboard_Type       : constant String := "Keyboard Type";
-   Reg_Value_KB_Charset_Switch   : constant String := "Keyboard Rocker Switch";
-   Reg_Value_Save_State_Filename : constant String := "Save State Filename";
-   Reg_Value_Save_State_On_Exit  : constant String := "Save State On Exit";
-   Reg_Value_HDD_Enabled         : constant String := "Harddisk Enable";
-   Reg_Value_HDD_Image_1         : constant String := "Harddisk Image 1";
-   Reg_Value_HDD_Image_2         : constant String := "Harddisk Image 2";
-   Reg_Value_Disk_Image_1        : constant String := "Disk Image 1";
-   Reg_Value_Disk_Image_2        : constant String := "Disk Image 2";
-   Reg_Value_Clock_Slot          : constant String := "Clock Enable";
-
-   Reg_Value_Parallel_Printer_Filename : constant String :=
-     "Parallel Printer Filename";
-   Reg_Value_Printer_Append : constant String := "Append to printer file";
-   Reg_Value_Printer_Idle_Limit : constant String := "Printer idle limit";
-
-   Reg_Value_PDL_X_Trim         : constant String := "PDL X-Trim";
-   Reg_Value_PDL_Y_Trim         : constant String := "PDL Y-Trim";
-   Reg_Value_Scroll_Lock_Toggle : constant String := "ScrollLock Toggle";
-   Reg_Value_Mouse_In_Slot_4    : constant String := "Mouse in slot 4";
-
-   --  Preferences
-
-   Reg_Value_Pref_Start_Dir      : constant String := "Slot 6 Directory";
-   Reg_Value_Pref_HDD_Start_Dir  : constant String := "HDV Starting Directory";
-   Reg_Value_Pref_Save_State_Dir : constant String := "Save State Directory";
-
-   Reg_Value_Show_LEDs : constant String := "Show Leds";
-
    --  sizes of status panel
 
    Status_Panel_Width  : constant := 100;
@@ -320,11 +388,11 @@ is
 private
    --  TODO: Remove the following pragmas when video emulation is ported
 
-   pragma Unreferenced (Vid_Flag_Dbl_Hires);
-   pragma Unreferenced (Vid_Flag_Hires);
-   pragma Unreferenced (Vid_Flag_Mask_2);
-   pragma Unreferenced (Vid_Flag_Mixed);
-   pragma Unreferenced (Vid_Flag_Page_2);
-   pragma Unreferenced (Vid_Flag_Text);
+   pragma Unreferenced (Video_Flag_Dbl_Hires);
+   pragma Unreferenced (Video_Flag_Hires);
+   pragma Unreferenced (Video_Flag_Mask_2);
+   pragma Unreferenced (Video_Flag_Mixed);
+   pragma Unreferenced (Video_Flag_Page_2);
+   pragma Unreferenced (Video_Flag_Text);
 
 end Apple2;

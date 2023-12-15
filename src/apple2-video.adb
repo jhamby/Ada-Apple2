@@ -30,7 +30,7 @@ is
 
    function Video_Mode_80_Column (C : Apple2_Base) return Boolean is
    begin
-      return (C.Video_Mode and Vid_Flag_80_Column) /= 0;
+      return (C.Video_Mode and Video_Flag_80_Column) /= 0;
    end Video_Mode_80_Column;
 
    --------------------

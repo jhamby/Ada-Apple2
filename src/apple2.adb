@@ -59,7 +59,7 @@ is
 
    function Is_Apple2 (C : Apple2_Base) return Boolean is
    begin
-      return C.Model < Apple_2e;
+      return C.Settings.Model < Apple_2e;
    end Is_Apple2;
 
    -----------------------
@@ -68,19 +68,8 @@ is
 
    function Get_Apple_2_Model (C : Apple2_Base) return Apple_2_Model is
    begin
-      return C.Model;
+      return C.Settings.Model;
    end Get_Apple_2_Model;
-
-   -----------------------
-   -- Set_Apple_2_Model --
-   -----------------------
-
-   procedure Set_Apple_2_Model
-     (C : in out Apple2_Base; New_Type : Apple_2_Model)
-   is
-   begin
-      C.Model := New_Type;
-   end Set_Apple_2_Model;
 
    -----------------
    -- CPU_Execute --
@@ -91,7 +80,7 @@ is
       Total_Cycles :        Natural)
    is
    begin
-      if C.Model = Apple_2e_Enhanced then
+      if C.Settings.Model = Apple_2e_Enhanced then
          CPU_Execute_WDC_65C02 (CPU_6502_Series (C), Mem, Total_Cycles);
       else
          CPU_Execute_MOS_6502 (CPU_6502_Series (C), Mem, Total_Cycles);

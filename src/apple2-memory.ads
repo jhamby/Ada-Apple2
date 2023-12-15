@@ -71,17 +71,16 @@ is
      Inline;
    --  Write a byte to I/O space ($Cxxx)
 
-   function Mem_Get_Mode (C : Computer) return Mem_Flag_Type with
+   function Mem_Get_Mode (C : Computer) return Mem_Mode_Flags with
      Inline;
    --  Get current memory mode flags
 
-   procedure Mem_Set_Mode (C : in out Computer; Mode : Mem_Flag_Type) with
+   procedure Mem_Set_Mode (C : in out Computer; Mode : Mem_Mode_Flags) with
      Inline;
    --  Set current memory mode flags
 
    procedure Init_Apple2
-     (C     : in out Computer; Mem : not null access RAM_All_Banks;
-      Model :        Apple_2_Model);
+     (C : in out Computer; Mem : not null access RAM_All_Banks);
    --  Initialize ROMs and clear RAM
 
    procedure Mem_Read_Floating_Bus

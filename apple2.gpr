@@ -1,3 +1,5 @@
+with "sdlada";
+
 project Apple2 is
 
    for Source_Dirs   use ("src");
@@ -13,7 +15,11 @@ project Apple2 is
 
    package Compiler is
       for Default_Switches ("Ada") use
-         ("-gnata", "-gnateE", "-gnaty", "-gnatyg", "-gnatwa", "-gnatwe");
+         ("-gnata", "-gnateE", "-gnaty", "-gnatyg", "-gnatwa");
    end Compiler;
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-lSDL2");
+   end Linker;
 
 end Apple2;

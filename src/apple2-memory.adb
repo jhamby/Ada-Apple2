@@ -772,7 +772,7 @@ is
    -- Mem_Get_Mode --
    ------------------
 
-   function Mem_Get_Mode (C : Computer) return Mem_Flag_Type is
+   function Mem_Get_Mode (C : Computer) return Mem_Mode_Flags is
    begin
       return C.Mem_Mode;
    end Mem_Get_Mode;
@@ -781,7 +781,7 @@ is
    -- Mem_Set_Mode --
    ------------------
 
-   procedure Mem_Set_Mode (C : in out Computer; Mode : Mem_Flag_Type) is
+   procedure Mem_Set_Mode (C : in out Computer; Mode : Mem_Mode_Flags) is
    begin
       C.Mem_Mode := Mode;
    end Mem_Set_Mode;
@@ -933,12 +933,10 @@ is
    -----------------
 
    procedure Init_Apple2
-     (C     : in out Computer; Mem : not null access RAM_All_Banks;
-      Model :        Apple_2_Model)
+     (C : in out Computer; Mem : not null access RAM_All_Banks)
    is
    begin
-      C.Model := Model;
-      case C.Model is
+      case C.Settings.Model is
          when Apple_2 =>
             Mem (16#01_D000# .. 16#01_FFFF#) := Apple_2_ROM;
             --  12KB ROM in second 64KB bank
@@ -1023,7 +1021,7 @@ is
       Read_Value :    out Unsigned_8; Cycles_Left : Natural)
    is
       Offset        : constant Unsigned_8 := Unsigned_8 (Address and 16#FF#);
-      Last_Mem_Mode : constant Mem_Flag_Type := C.Mem_Mode;
+      Last_Mem_Mode : constant Mem_Mode_Flags := C.Mem_Mode;
    begin
       if Offset >= 16#80# and Offset <= 16#8F# then
          declare

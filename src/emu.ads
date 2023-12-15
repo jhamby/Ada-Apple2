@@ -44,4 +44,19 @@ is
    subtype Mem_Bank is Mem_Byte_Range (0 .. Mem_Bank_Size - 1);
    --  Type for a 64K bank of memory
 
+   --  Helper functions
+
+   procedure Get_Hex_Digit
+     (Char : Character; Digit : in out Unsigned_8; Success : out Boolean);
+   --  Try to parse a character as a hexadecimal digit
+
+   procedure Get_Hex_Byte
+     (Chars : String; Digit : in out Unsigned_8; Success : out Boolean) with
+     Pre => Chars'Length = 2;
+   --  Try to parse two characters as a hexadecimal byte
+
+   procedure Put_Hex_Byte (Chars : in out String; Digit : Unsigned_8) with
+     Pre => Chars'Length = 2;
+   --  Try to parse two characters as a hexadecimal byte
+
 end Emu;

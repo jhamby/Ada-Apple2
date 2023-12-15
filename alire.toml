@@ -7,3 +7,6 @@ maintainers = ["Jake Hamby <jake.hamby@gmail.com>"]
 maintainers-logins = ["jhamby"]
 
 executables = ["Apple2"]
+
+[[depends-on]]
+  sdlada = "^2.5.5"
