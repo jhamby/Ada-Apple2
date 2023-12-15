@@ -29,7 +29,9 @@
 --  Linappple-pie was adapted in OCT 2015 for use with Retropie.
 --  By Mark Ormond.
 
-with Ada.Text_IO;
+with Ada.Command_Line;      use Ada.Command_Line;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Ada.Text_IO;           use Ada.Text_IO;
 
 with Apple2; use Apple2;
 
@@ -42,53 +44,106 @@ with Emu.Config_File; use Emu.Config_File;
 with Emu.Memory;      use Emu.Memory;
 with Emu.Registry;    use Emu.Registry;
 
+with GNAT.OS_Lib;
+
 with Interfaces; use Interfaces;
 
 with SDL.Video.Palettes; use SDL.Video.Palettes;
 
 procedure Apple2_Main is
 
-   Config_File_Name : constant String := Get_Config_File_Name ("linapple");
-   --  Get the config file pathname before we begin
+   Config_File_Name : String := Get_Config_File_Name ("linapple");
+   --  Get the config file pathname for this app (the user can override)
 
-   Registry : Registry_Type;
+   procedure Print_Help;
+
+   procedure Parse_Command_Line (S : in out Settings_Type);
+   --  Update settings with command-line options before copying to registry
+
+   Benchmark_Mode : Boolean := False;
+
+   --  Helper procedures
+
+   procedure Print_Help is
+   begin
+      Put_Line ("usage: " & Command_Name & " [options]");
+      New_Line;
+      Put_Line
+        ("Ada-Apple2 is an emulator for Apple ][, Apple ][+, " &
+         "Apple //e, and Enhanced Apple //e computers.");
+      New_Line;
+      Put_Line ("  -h|--help      show this help message");
+      Put_Line
+        ("  --conf <file>  use <file> instead of any default " &
+         "config files");
+      Put_Line ("  --d1 <file>      insert disk image into first drive");
+      Put_Line ("  --d2 <file>      insert disk image into second drive");
+      Put_Line ("  -b|--autoboot    boot/reset at startup");
+      Put_Line ("  -f|--fullscreen  run fullscreen");
+      Put_Line ("  --benchmark      benchmark and quit");
+      New_Line;
+   end Print_Help;
+
+   procedure Parse_Command_Line (S : in out Settings_Type) is
+      Skip_Next : Boolean := False;
+   begin
+      for I in 1 .. Argument_Count loop
+         declare
+            Arg : constant String := Argument (I);
+         begin
+            if Skip_Next then
+               Skip_Next := False;
+
+            elsif Arg = "-b" or else Arg = "--autoboot" then
+               S.Boot_At_Startup := True;
+
+            elsif Arg = "-f" or else Arg = "--fullscreen" then
+               S.Fullscreen := True;
+
+            elsif Arg = "--benchmark" then
+               Benchmark_Mode := True;
+
+            elsif Arg = "--conf" and then I < Argument_Count then
+               Config_File_Name := Argument (I + 1);
+               Skip_Next        := True;
+
+            elsif Arg = "--d1" and then I < Argument_Count then
+               Set_Unbounded_String
+                 (S.Disk_Image_Filenames (0), Argument (I + 1));
+               Skip_Next := True;
+
+            elsif Arg = "--d2" and then I < Argument_Count then
+               Set_Unbounded_String
+                 (S.Disk_Image_Filenames (1), Argument (I + 1));
+               Skip_Next := True;
+
+            else
+               Print_Help;
+               GNAT.OS_Lib.OS_Exit (2);
+            end if;
+         end;
+      end loop;
+   end Parse_Command_Line;
+
+   C : Computer;  --  Test computer object
+
+   Registry : Registry_Type;  --  Pass to any code that saves user settings
 
    File_Op_Status : File_Op_Status_Type;  --  TODO: show I/O errors in GUI
 
-   ---------------------------------------
-   --  TODO: remove old test code below --
-   ---------------------------------------
-
-   procedure Run_Tests (C : in out Computer; Mem : access RAM_All_Banks);
-   --  Exercise the computer object
-
-   procedure Run_Tests (C : in out Computer; Mem : access RAM_All_Banks) is
-      IO_Read_Value : Unsigned_8;
-   begin
-      for I in Unsigned_16 (16#C000#) .. Unsigned_16 (16#CFFF#) loop
-         Mem_IO_Read (C, Mem, I, IO_Read_Value, 3);
-         Mem_IO_Write (C, Mem, I, 123, 3);
-      end loop;
-
-      CPU_Execute (C, Mem, 10_000);
-
-      if IO_Read_Value /= 0 then
-         Ada.Text_IO.Put_Line ("I/O read value = " & IO_Read_Value'Image);
-      end if;
-   end Run_Tests;
-
-   C : Computer;
-   --  Test computer object
-
 begin
 
-   Ada.Text_IO.Put_Line ("Config file name: " & Config_File_Name);
+   Parse_Command_Line (C.Settings);  --  call first to get config file name
 
-   Initialize (Registry, Config_File_Name);
+   Initialize (Registry, Config_File_Name);  --  set filename and start task
 
    Init_Registry (C.Settings, Registry);  --  init registry from settings
 
-   Load_Settings (Registry, File_Op_Status);
+   Load_Settings (Registry, File_Op_Status);  --  load config file
+
+   Init_Settings (C.Settings, Registry);  --  update settings from registry
+
+   Parse_Command_Line (C.Settings);  --  call again to override config file
 
    if File_Op_Status = File_Error then
       Ada.Text_IO.Put_Line ("error reading config file");
@@ -96,7 +151,6 @@ begin
       --  going to continue running with default settings, regardless.
    end if;
 
-   --  TODO: remove old test code below
    declare
       type Global_RAM_Access is access RAM_All_Banks;
       --  The emulated RAM will be freed when this type goes out of scope
@@ -104,15 +158,14 @@ begin
       Main_Mem : constant Global_RAM_Access := new RAM_All_Banks;
       --  Note: the access variable is constant, but the RAM itself is not
    begin
-      Init_Settings (C.Settings, Registry);
-
       Init_Apple2 (C, Main_Mem);
-      Run_Tests (C, Main_Mem);
 
-      Set_Video_Standard (C.Settings, Registry, PAL);
-      Set_Video_Standard (C.Settings, Registry, NTSC);
-      Set_Monochrome_Color
-        (C.Settings, Registry, RGB_Colour'(16#CC#, 16#CC#, 16#CC#));
+      if Benchmark_Mode then
+         Put_Line ("Benchmark mode will go here!");
+         CPU_Execute (C, Main_Mem, 10_000);
+      else
+         Put_Line ("SDL initializing.");
+      end if;
    end;
 
    End_Registry_Write_Task (Registry);
