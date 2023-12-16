@@ -193,19 +193,6 @@ is
    type Mem_Page_Table is array (Unsigned_8) of RAM_Bank_Index;
    --  Table of RAM bank to use within RAM_Pages for each page in 64K
 
-   type Page_Flags is mod 2**8;
-   --  Flags for each page, cleared when written to by any source
-
-   Page_Flag_Reset : constant Page_Flags := 16#00#;
-   --  clear all flags on any page write
-
-   Page_Flag_Video : constant Page_Flags := 16#01#;
-   --  set when screen update uses this page for the image
-
-   type Page_Clean_Table is array (Unsigned_8) of Page_Flags;
-   --  Table of one-bit usage flags for each 256-byte page in 64 KB
-   --  Video uses this to detect when screen memory changes
-
    type Joystick_Device is
      (Joy_None, Joy_Joystick, Joy_Keyboard, Joy_Keyboard_Centered, Joy_Mouse);
    --  Apple joysticks can be emulated with joystick, keyboard, or mouse
@@ -314,9 +301,6 @@ is
 
       Mem_Write_Bank : Mem_Page_Table := (others => RAM_Bank_Main);
       --  Memory write paging table
-
-      Page_Clean_Flags : Page_Clean_Table := (others => Page_Flag_Reset);
-      --  page written flags (used by Video)
 
       RAM_Active_Bank : RAM_Bank_Index := RAM_Bank_Aux;
       --  active aux RAM bank

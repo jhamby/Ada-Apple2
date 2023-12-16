@@ -48,9 +48,6 @@ is
    is
    begin
       Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address)) := Value;
-      C.Page_Clean_Flags (Unsigned_8 (Shift_Right (Address, 8) and 16#FF#)) :=
-        Page_Flag_Reset;
-      --  Clear page clean flag so video can refresh any changed regions
    end Mem_Write;
 
    ---------------
