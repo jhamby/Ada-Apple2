@@ -20,35 +20,37 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-with WDC_CPU_65C02; use WDC_CPU_65C02;
-
 package body Apple2 with
   SPARK_Mode
 is
+
+   ----------------
+   -- Mem_Access --
+   ----------------
+
+   procedure Mem_Access
+     (Mem     : not null access RAM_All_Banks; Bank : RAM_Bank_Index;
+      Address : Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean)
+   is
+   begin
+      if Is_Write then
+         Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address)) := Value;
+      else
+         Value := Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address));
+      end if;
+   end Mem_Access;
 
    --------------
    -- Mem_Read --
    --------------
 
-   function Mem_Read
+   procedure Mem_Read
      (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
-      Address : Unsigned_16) return Unsigned_8
+      Address : Unsigned_16; Value : out Unsigned_8)
    is
    begin
-      return Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address));
+      Value := Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address));
    end Mem_Read;
-
-   ---------------
-   -- Mem_Write --
-   ---------------
-
-   procedure Mem_Write
-     (C    : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Bank :        RAM_Bank_Index; Address : Unsigned_16; Value : Unsigned_8)
-   is
-   begin
-      Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address)) := Value;
-   end Mem_Write;
 
    ---------------
    -- Is_Apple2 --
@@ -67,21 +69,5 @@ is
    begin
       return C.Settings.Model;
    end Get_Apple_2_Model;
-
-   -----------------
-   -- CPU_Execute --
-   -----------------
-
-   procedure CPU_Execute
-     (C            : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Total_Cycles :        Natural)
-   is
-   begin
-      if C.Settings.Model = Apple_2e_Enhanced then
-         CPU_Execute_WDC_65C02 (CPU_6502_Series (C), Mem, Total_Cycles);
-      else
-         CPU_Execute_MOS_6502 (CPU_6502_Series (C), Mem, Total_Cycles);
-      end if;
-   end CPU_Execute;
 
 end Apple2;

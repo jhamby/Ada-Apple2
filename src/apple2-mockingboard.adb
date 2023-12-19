@@ -37,34 +37,18 @@ is
       --  TODO: add implementation
    end Phasor_IO;
 
-   -------------
-   -- MB_Read --
-   -------------
+   ---------------
+   -- MB_Access --
+   ---------------
 
-   procedure MB_Read
-     (C : in out Apple2_Base; Mem : not null access constant RAM_All_Banks;
-      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
-      Cycles_Left :        Natural)
+   procedure MB_Access
+     (C        : Apple2_Base; Address : Unsigned_16; Value : in out Unsigned_8;
+      Is_Write : Boolean)
    is
-      pragma Unreferenced (Address, Mem);
+      pragma Unreferenced (Address, C, Is_Write);
    begin
-      CPU_Calc_Cycles (C, Cycles_Left);
-      Read_Value := 0;
+      Value := 0;
       --  TODO: add implementation
-   end MB_Read;
-
-   --------------
-   -- MB_Write --
-   --------------
-
-   procedure MB_Write
-     (C : in out Apple2_Base; Mem : not null access constant RAM_All_Banks;
-      Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural)
-   is
-      pragma Unreferenced (Address, Mem, Write_Value);
-   begin
-      CPU_Calc_Cycles (C, Cycles_Left);
-      --  TODO: add implementation
-   end MB_Write;
+   end MB_Access;
 
 end Apple2.Mockingboard;

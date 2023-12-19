@@ -425,7 +425,7 @@ is
 
    procedure Set_Disk_Image_Filename
      (S     : in out Settings_Type; Reg : in out Registry_Type;
-      Drive :        Disk_2_Range; New_Name : String)
+      Drive :        Disk_2_Index; New_Name : String)
    is
    begin
       Set_Unbounded_String (S.Disk_Image_Filenames (Drive), New_Name);
@@ -454,7 +454,7 @@ is
 
    procedure Set_Joystick_Type
      (S      : in out Settings_Type; Reg : in out Registry_Type;
-      Number :        Joystick_Range; New_Type : Joystick_Device)
+      Number :        Joystick_Index; New_Type : Joystick_Device)
    is
    begin
       S.Joystick_Types (Number) := New_Type;
@@ -469,7 +469,7 @@ is
 
    procedure Set_SDL_Joystick_ID
      (S      : in out Settings_Type; Reg : in out Registry_Type;
-      Number :        Joystick_Range; New_ID : All_Devices)
+      Number :        Joystick_Index; New_ID : All_Devices)
    is
    begin
       S.SDL_Joystick_IDs (Number) := New_ID;

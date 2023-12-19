@@ -25,104 +25,86 @@ package Apple2.Memory with
 is
    pragma Elaborate_Body;
 
-   type Computer is new Apple2_Base with null record;
+   Num_Slots : constant := 7;
+   --  original Apple II has a slot 0 that isn't emulated
 
-   Apple_Slot_Size : constant Unsigned_16 := 16#0100#;
-   --  1 page = $Cx00 .. $CxFF (slot 1 .. 7)
+   type Full_Slot_Range is range 0 .. Num_Slots;
+   --  slot ID, or 0 for no slot
 
-   Apple_Slot_Begin : constant Unsigned_16 := 16#C100#;
+   subtype Slot_Range is Full_Slot_Range range 1 .. Num_Slots;
+   --  select slot 1 .. 7
+
+   type Card_ROM_Array is array (Slot_Range) of Card_ROM_Type;
+   --  Array of 256-byte peripheral ROMs
+
+   type Expansion_ROM_Array is array (Slot_Range) of Expansion_ROM_Access;
+   --  Array of access to 2K peripheral ROMs
+
+   type IRQ_Source is (IRQ_6522, IRQ_Speech, IRQ_SSC, IRQ_MOUSE);
+
+   type Button_ID is (Button_0, Button_1);
+   type Button_State is (Button_Up, Button_Down);
+
+   type Computer is new Apple2_Base with record
+
+      System_ROM : System_ROM_Type := (others => 0);
+
+      Extra_ROM : Extra_ROM_Type := (others => 0);
+
+      Card_ROMs : Card_ROM_Array := (others => (others => 0));
+
+      Expansion_ROMs : Expansion_ROM_Array := (others => null);
+
+      RAM_Active_Aux_Bank : RAM_Bank_Index := RAM_Bank_Aux_Start;
+      --  active aux RAM bank
+
+      IO_Select_Slot : Full_Slot_Range := 0;
+      --  Slot of expansion ROM to enable (1 - 7 = slots; 0 = none)
+
+      RAM_Max_Bank_Used : RAM_Bank_Index := RAM_Bank_Aux_Start;
+      --  highest RAMWorks III bank read or written to
+
+      High_RAM_Write_Latch_Cycle : CPU_Cycle_Count := 0;
+      --  Cycle count of first of two reads to enable Mem_High_RAM_Write
+
+   end record;
+   --  Child class containing members only accessed by Apple2.Memory
+
+   Apple_IO_Start : constant Unsigned_16 := 16#C000#;
+   --  Start of $Cxxx I/O and ROM region
+
+   Apple_Slot_Start : constant Unsigned_16 := 16#C100#;
    --  each slot has 1 page reserved for it
 
    Apple_Slot_End : constant Unsigned_16 := 16#C7FF#;
    --  end of slot address range
 
-   Firmware_Expansion_Size : constant Unsigned_16 := 16#0800#;
-   --  8 pages = $C800 .. $CFFF
+   Expansion_ROM_Start : constant Unsigned_16 := 16#C800#;
+   --  2K expansion ROM start
 
-   Firmware_Expansion_Begin : constant Unsigned_16 := 16#C800#;
-   --  [C800,CFFF)
-
-   Firmware_Expansion_End : constant Unsigned_16 := 16#CFFF#;
+   Expansion_ROM_End : constant Unsigned_16 := 16#CFFF#;
    --  End of I/O address range
 
-   overriding procedure Mem_IO_Read
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
-      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
-      Cycles_Left :        Natural);
-
-   --  Read a byte from memory or I/O space
-
-   overriding procedure Mem_IO_Write
+   overriding procedure Mem_IO_Access
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural);
-   --  Write a byte to memory or I/O space
-
-   procedure Mem_IO_Read_Cxxx
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
-      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
-      Cycles_Left :        Natural) with
-     Inline;
-   --  Read a byte from I/O space ($Cxxx)
-
-   procedure Mem_IO_Write_Cxxx
-     (C           : in out Computer; Mem : not null access RAM_All_Banks;
-      Address     :        Unsigned_16; Write_Value : Unsigned_8;
-      Cycles_Left :        Natural) with
-     Inline;
-   --  Write a byte to I/O space ($Cxxx)
-
-   function Mem_Get_Mode (C : Computer) return Mem_Mode_Flags with
-     Inline;
-   --  Get current memory mode flags
-
-   procedure Mem_Set_Mode (C : in out Computer; Mode : Mem_Mode_Flags) with
-     Inline;
-   --  Set current memory mode flags
+      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean);
+   --  Read or write a byte from RAM, ROM, I/O space, or floating bus
 
    procedure Init_Apple2
      (C : in out Computer; Mem : not null access RAM_All_Banks);
    --  Initialize ROMs and clear RAM
 
    procedure Mem_Read_Floating_Bus
-     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Read_Value :    out Unsigned_8; Executed_Cycles : Natural);
+     (C     : in out Computer; Mem : not null access constant RAM_All_Banks;
+      Value : in out Unsigned_8);
    --  Read floating bus address and advance cycle counter
 
    procedure Mem_Read_Floating_Bus
-     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
-      High_Bit        :        Boolean; Read_Value : out Unsigned_8;
-      Executed_Cycles :        Natural);
+     (C        : in out Computer; Mem : not null access constant RAM_All_Banks;
+      High_Bit :        Boolean; Value : in out Unsigned_8);
    --  Read floating bus address, replacing high bit of result
 
    procedure Mem_Reset
      (C : in out Computer; Mem : not null access RAM_All_Banks);
-
-   procedure Mem_Reset_Paging (C : in out Computer);
-   --  Reset paging tables based on memory mode.
-   --  Called by:
-   --    Soft-reset (Ctrl+Reset)
-   --    Snapshot_Load_State()
-
-   function Mode_80_Store (C : Computer) return Boolean with
-     Inline;
-   --  Memory mode is 80 Store (used by Video)
-
-   function Mode_High_RAM_Write (C : Computer) return Boolean with
-     Inline;
-   --  Memory mode is high RAM write (used by Mem_IO_Write)
-
-   function Mode_High_RAM_Bank_2 (C : Computer) return Boolean with
-     Inline;
-   --  Memory mode is high RAM bank 2 (used by Mem_IO_Read & Write)
-
-   procedure IO_Read_Null
-     (C : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural) with
-     Inline;
-   --  Default I/O read procedure (count cycles, read floating bus)
-
-   procedure IO_Write_Null (C : in out Computer; Cycles_Left : Natural) with
-     Inline;
-   --  Default I/O write procedure (count cycles)
 
 end Apple2.Memory;

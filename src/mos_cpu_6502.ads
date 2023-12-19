@@ -51,6 +51,17 @@ is
 
       SP : Unsigned_16 := 16#01FF#;  -- stack pointer
 
+      Cycles_Since_Boot : CPU_Cycle_Count := 0;
+      --  64-bit cycle count, updated at end of VBL, when scan line is reset
+
+      Column_Cycle : Unsigned_16 := 0;
+      --  clock cycles since the start of the current scan line, updated
+      --  by the CPU before each bus access
+
+      Scan_Line : Unsigned_16 := 0;
+      --  current scan line (will be start of VBL at start & end of frame),
+      --  updated by the CPU before each bus access
+
       Halt_Opcode : Unsigned_8 := 0;  -- illegal opcode halt (NMOS 6502 only)
 
    end record;
@@ -62,25 +73,21 @@ is
    procedure CPU_Reset (C : in out CPU_6502_Series);
    --  Reset the CPU state
 
-   procedure CPU_Calc_Cycles
-     (C : in out CPU_6502_Series; Cycles_Left : Natural);
-   --  Update the CPU cycle counters
-
    procedure CPU_Execute_MOS_6502
      (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
-      Total_Cycles :        Natural);
-   --  Emulate an NMOS 6502 CPU for the specified number of cycles
+      Column_Cycle, Scan_Line : in out Unsigned_16;
+      Num_Columns, Num_Lines  :        Unsigned_16);
+   --  Emulate an NMOS 6502 CPU for the specified number of cycles, in
+   --  cycles per scan line, and number of scan lines to emulate. This
+   --  will be either one line or the entire VBL interval. The current
+   --  column and scan line are passed in and out to the caller, so that
+   --  the variables in the record are only updated before bus accesses.
+   --  The minimum duration is one scan line (Num_Columns clock cycles).
 
-   procedure Mem_IO_Read
-     (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
-      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
-      Cycles_Left :        Natural) is abstract;
-   --  Read a byte from memory or I/O space
-
-   procedure Mem_IO_Write
-     (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
-      Address     :        Unsigned_16; Write_Value : Unsigned_8;
-      Cycles_Left :        Natural) is abstract;
-   --  Write a byte to memory or I/O space
+   procedure Mem_IO_Access
+     (C        : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
+      Address  :        Unsigned_16; Value : in out Unsigned_8;
+      Is_Write :        Boolean) is abstract;
+   --  Read or write a byte from RAM, ROM, I/O space, or floating bus
 
 end MOS_CPU_6502;

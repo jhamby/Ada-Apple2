@@ -63,40 +63,77 @@ is
    -- System ROM sizes --
    ----------------------
 
-   Cx_ROM_Size : constant := 4 * 1_024; --  4K Cx ROM size
+   Apple_Slot_Size : constant := 256;
+   --  1 page = $Cx00 .. $CxFF (slot 1 .. 7)
 
-   Apple_2_ROM_Size : constant := 12 * 1_024; --  12K ROM (II / II Plus)
+   Expansion_ROM_Size : constant := 2 * 1_024;
+   --  expansion ROM size
 
-   Apple_2e_ROM_Size : constant := Apple_2_ROM_Size + Cx_ROM_Size;
+   Apple_2_ROM_Size : constant := 12 * 1_024;
+   --  12K ROM (II / II Plus)
+
+   Extra_ROM_Size : constant := 4 * 1_024;
+   --  4K ROM at $C000 (IIe)
+
+   Apple_2e_ROM_Size : constant := Apple_2_ROM_Size + Extra_ROM_Size;
    --  16K ROM (IIe / IIe Enhanced)
+
+   subtype System_ROM_Type is Mem_Byte_Range (0 .. Apple_2_ROM_Size - 1);
+   --  12K ROM
+
+   subtype System_ROM_2e_Type is Mem_Byte_Range (0 .. Apple_2e_ROM_Size - 1);
+   --  16K ROM
+
+   subtype Extra_ROM_Type is Mem_Byte_Range (0 .. Extra_ROM_Size - 1);
+   --  4K Apple IIe bank-switched ROM
+
+   subtype Card_ROM_Type is Mem_Byte_Range (0 .. Apple_Slot_Size - 1);
+   --  256-byte card ROM
+
+   subtype Expansion_ROM_Type is Mem_Byte_Range (0 .. Expansion_ROM_Size - 1);
+   --  2K expansion ROM
+
+   type Expansion_ROM_Access is access constant Expansion_ROM_Type;
+   --  2K expansion ROM
 
    ------------------------------------------------------
    -- Clock speeds / durations for NTSC & PAL machines --
    ------------------------------------------------------
 
-   NTSC_M14 : constant Long_Float := 157_500_000.0 / 11.0;
-   --  14.3181818... * 10^6
+   NTSC_M14 : constant := 14_318_182;
+   --  NTSC M14 clock speed in Hz
 
-   NTSC_Clock_6502 : constant Long_Float := (NTSC_M14 * 65.0) / 912.0;
-   --  65 cycles per 912 14M clocks
-
-   NTSC_Clock_Z80 : constant Long_Float := NTSC_Clock_6502 * 2.0;
-   --  effective Z80 clock rate is 2.041 MHz
+   PAL_M14 : constant := 14_250_450;
+   --  PAL M14 clock speed in Hz
 
    Cycles_Per_Line : constant := 65;
-   --  25 cycles of HBL & 40 cycles of HBL
+   --  25 cycles of HBL & 40 cycles of display output
 
-   NTSC_Lines_Per_Frame : constant := 262;
+   Visible_Lines_Per_Frame : constant := 192;
+   --  64 lines in each third of the screen
+
+   NTSC_Lines_Per_Frame : constant := Visible_Lines_Per_Frame + 70;
    --  64 in each third of the screen & 70 in VBL
 
    NTSC_Clocks_Per_Frame : constant := Cycles_Per_Line * NTSC_Lines_Per_Frame;
-   --  17030
+   --  NTSC clocks per frame = 17030
 
-   PAL_Lines_Per_Frame : constant := 312;
+   PAL_Lines_Per_Frame : constant := Visible_Lines_Per_Frame + 120;
    --  64 in each third of the screen & 120 in VBL
 
    PAL_Clocks_Per_Frame : constant := Cycles_Per_Line * PAL_Lines_Per_Frame;
-   --  17030
+   --  PAL clocks per frame = 20280
+
+   --  The next two types will be removed if I don't use them. I'm using
+   --  Unsigned_16 for scan lines and columns in the 6502 CPU emulation
+   --  because I don't want it to depend on any Apple II-specific details.
+
+   type Scan_Line_Count is range 0 .. PAL_Lines_Per_Frame;
+   --  Define a type with a range big enough for PAL or NTSC, plus one for
+   --  overflow from the CPU incrementing past the last scan line.
+
+   type Column_Cycle_Count is range 0 .. Cycles_Per_Line - 1;
+   --  Define a type to hold the current cycle within a line
 
    -----------------------------------------
    -- Emulator app state and default keys --
@@ -151,70 +188,53 @@ is
    -- Apple II series system state --
    ----------------------------------
 
-   Num_Slots : constant := 8;
-
-   type Slot_Range is range 0 .. Num_Slots - 1;
-
-   type Expansion_ROM_Type is (ROM_None, ROM_Internal, ROM_Peripheral);
-   --  Select the enabled ROM at $C100..$CFFF
-
-   type Mem_Mode_Flags is mod 2**16;
-   --  Memory map behavior flags
-
-   Flag_80_Store        : constant Mem_Mode_Flags := 16#0001#;
-   Flag_Alt_ZP          : constant Mem_Mode_Flags := 16#0002#;
-   Flag_Aux_Read        : constant Mem_Mode_Flags := 16#0004#;
-   Flag_Aux_Write       : constant Mem_Mode_Flags := 16#0008#;
-   Flag_High_RAM_Bank_2 : constant Mem_Mode_Flags := 16#0010#;
-   Flag_High_RAM        : constant Mem_Mode_Flags := 16#0020#;
-   Flag_Hi_Res          : constant Mem_Mode_Flags := 16#0040#;
-   Flag_Page_2          : constant Mem_Mode_Flags := 16#0080#;
-   Flag_Slot_C3_ROM     : constant Mem_Mode_Flags := 16#0100#;
-   Flag_Slot_CX_ROM     : constant Mem_Mode_Flags := 16#0200#;
-   Flag_High_RAM_Write  : constant Mem_Mode_Flags := 16#0400#;
-
-   type Mem_Init_Pattern_Type is (Pattern_Zero, Pattern_FF_FF_00_00);
-
-   type IRQ_Source is (IRQ_6522, IRQ_Speech, IRQ_SSC, IRQ_MOUSE);
-
-   type Button_ID is (Button_0, Button_1);
-   type Button_State is (Button_Up, Button_Down);
-
-   type Video_Mode_Flags is mod 2**16;
-
-   Video_Flag_80_Column : constant Video_Mode_Flags := 16#0001#;
-   Video_Flag_Dbl_Hires : constant Video_Mode_Flags := 16#0002#;
-   Video_Flag_Hires     : constant Video_Mode_Flags := 16#0004#;
-   Video_Flag_Mask_2    : constant Video_Mode_Flags := 16#0008#;
-   Video_Flag_Mixed     : constant Video_Mode_Flags := 16#0010#;
-   Video_Flag_Page_2    : constant Video_Mode_Flags := 16#0020#;
-   Video_Flag_Text      : constant Video_Mode_Flags := 16#0040#;
-
-   type Mem_Page_Table is array (Unsigned_8) of RAM_Bank_Index;
-   --  Table of RAM bank to use within RAM_Pages for each page in 64K
-
    type Joystick_Device is
      (Joy_None, Joy_Joystick, Joy_Keyboard, Joy_Keyboard_Centered, Joy_Mouse);
    --  Apple joysticks can be emulated with joystick, keyboard, or mouse
 
-   type Joystick_Range is range 0 .. 1;
+   type Joystick_Index is range 0 .. 1;
    --  Apple joystick numbers go from 0 to 1
 
-   type Joystick_Devices is array (Joystick_Range) of Joystick_Device;
+   type Joystick_Devices is array (Joystick_Index) of Joystick_Device;
 
-   type Joystick_Button_Range is range 0 .. 2;
+   type Joystick_Axis is range 0 .. 3;
 
-   type Joystick_Button_States is array (Joystick_Button_Range) of Boolean;
+   type Joystick_Button is range 0 .. 2;
+
+   type Joystick_Button_States is array (Joystick_Button) of Boolean;
 
    type SDL_Joystick_Devices is
-     array (Joystick_Range) of SDL.Inputs.Joysticks.All_Devices;
+     array (Joystick_Index) of SDL.Inputs.Joysticks.All_Devices;
    --  For each Apple II joystick, either 0 or an SDLAda joystick ID (1 .. n)
 
-   type Disk_2_Range is range 0 .. 1;
+   type Disk_2_Index is range 0 .. 1;
    --  Apple disk drive numbers go from 0 to 1
 
-   type Disk_2_Filenames is array (Disk_2_Range) of Unbounded_String;
+   type Disk_2_Filenames is array (Disk_2_Index) of Unbounded_String;
    --  Pathnames for the two emulated disk drives
+
+   type Mode_Flags is record
+      Mem_80_Store             : Boolean;
+      Mem_Alt_ZP               : Boolean;
+      Mem_Aux_Read             : Boolean;
+      Mem_Aux_Write            : Boolean;
+      Mem_Expansion_ROM_Active : Boolean;
+      Mem_High_RAM             : Boolean;
+      Mem_High_RAM_Bank_2      : Boolean;
+      Mem_High_RAM_Write       : Boolean;
+      Mem_Slot_C3_ROM          : Boolean;
+      Mem_Slot_CX_ROM          : Boolean;
+      Video_80_Column          : Boolean;
+      Video_Text               : Boolean;
+      Video_Mixed              : Boolean;
+      Video_Page_2             : Boolean;
+      Video_Hi_Res             : Boolean;
+      Video_Dbl_Hi_Res         : Boolean;
+      Video_Dbl_Hi_Res_Visible : Boolean;
+      Video_Alt_Charset        : Boolean;
+   end record with
+     Pack;
+   --  MMU, video, I/O, and other soft switch states and mode flags
 
    -----------------------
    -- Emulator Settings --
@@ -225,23 +245,18 @@ is
       --  Emulator preferences
 
       Slot_6_Dir, Save_State_Dir, Save_State_Filename : Unbounded_String;
-
       Show_LEDs : Boolean := True;  --  show drive LEDs by default
-
       Boot_At_Startup : Boolean := False;  --  false = show splash screen
-
       Fullscreen : Boolean := False;  --  true = start in fullscreen mode
 
       --  General emulation settings
 
       Model : Apple_2_Model := Apple_2e_Enhanced;  --  computer type
-
       Speed : Apple_2_Speed := Speed_Normal;  --  MHz x10
 
       --  Video settings
 
-      Video_Type : Video_Type_Type := Color_Standard;
-
+      Video_Type     : Video_Type_Type     := Color_Standard;
       Video_Standard : Video_Standard_Type := NTSC;
 
       Mono_Color : RGB_Colour := RGB_Colour'(16#C0#, 16#C0#, 16#C0#);
@@ -273,9 +288,8 @@ is
       Printer_Filename : Unbounded_String :=
         To_Unbounded_String ("Printer.txt");
 
-      Printer_Idle_Timeout : Unsigned_32 := 10;
-
-      Printer_Append_To_File : Boolean := True;
+      Printer_Idle_Timeout   : Unsigned_32 := 10;
+      Printer_Append_To_File : Boolean     := True;
 
    end record;
    --  All of the user settings that are saved to the config file
@@ -289,54 +303,35 @@ is
       Settings : Settings_Type;
       --  All of the configuration settings saved to the registry
 
-      Mem_Mode : Mem_Mode_Flags :=
-        Flag_High_RAM_Bank_2 or Flag_Slot_CX_ROM or Flag_High_RAM_Write;
-      --  Memory mode flags (initialized to startup value)
-
-      Mem_Init_Pattern : Mem_Init_Pattern_Type := Pattern_FF_FF_00_00;
-      --  Current memory init pattern
-
-      Mem_Read_Bank : Mem_Page_Table := (others => RAM_Bank_Main);
-      --  Memory read paging table (no bank specified)
-
-      Mem_Write_Bank : Mem_Page_Table := (others => RAM_Bank_Main);
-      --  Memory write paging table
-
-      RAM_Active_Bank : RAM_Bank_Index := RAM_Bank_Aux;
-      --  active aux RAM bank
-
-      RAM_Max_Bank_Used : RAM_Bank_Index := RAM_Bank_Aux;
-      --  highest RAMWorks III bank read or written to
-
-      IO_Select_Slot : Slot_Range := 0;
-      --  I/O select peripheral ROM to enable (1 - 7 = slots)
-
-      IO_Select_Internal_ROM : Boolean := False;
-      --  Enable internal Apple IIe ROM at $C100 .. $CFFF
-
-      Expansion_ROM : Expansion_ROM_Type := ROM_None;
-      --  Select the enabled ROM at $C100 .. $CFFF
-
-      Video_Mode : Video_Mode_Flags := 0;
-      --  Current video mode
+      Mode : Mode_Flags :=
+        (Mem_High_RAM_Bank_2 => True, Mem_Slot_CX_ROM => True,
+         Mem_High_RAM_Write  => True, Video_Text => True, others => False);
+      --  Soft switch and other mode flags (initialized to startup values)
 
       Button_State : Joystick_Button_States := (others => False);
       --  State of the three joystick buttons
 
+      Spkr_First_Click_Cycle, Spkr_Last_Click_Cycle : CPU_Cycle_Count := 0;
+      --  Cycle count of first and last speaker clicks seen this frame
+
+      Spkr_Num_Clicks : Natural := 0;
+      --  Number of speaker clicks seen this frame
+
    end record;
    --  Holds the state for an Apple II variant with devices, except RAM/ROM
 
-   function Mem_Read
-     (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
-      Address : Unsigned_16) return Unsigned_8 with
+   procedure Mem_Access
+     (Mem      : not null access RAM_All_Banks; Bank : RAM_Bank_Index;
+      Address  : Unsigned_16; Value : in out Unsigned_8;
+      Is_Write : Boolean) with
      Inline;
-   --  Read a byte from memory by bank and 16-bit address
+   --  Read or write a byte to memory by bank and 16-bit address
 
-   procedure Mem_Write
-     (C    : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Bank :    RAM_Bank_Index; Address : Unsigned_16; Value : Unsigned_8) with
+   procedure Mem_Read
+     (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
+      Address : Unsigned_16; Value : out Unsigned_8) with
      Inline;
-   --  Write a byte to memory by bank and 16-bit address
+   --  Read or write a byte to memory by bank and 16-bit address
 
    function Is_Apple2 (C : Apple2_Base) return Boolean with
      Inline;
@@ -345,12 +340,6 @@ is
    function Get_Apple_2_Model (C : Apple2_Base) return Apple_2_Model with
      Inline;
    --  Returns the current machine type
-
-   procedure CPU_Execute
-     (C            : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Total_Cycles :        Natural) with
-     Inline;
-   --  Emulate the CPU for the specified number of cycles (6502 / 65C02)
 
    -----------------------------------------------------------
    --  TODO: put these hardcoded strings in a resource file --
@@ -368,15 +357,5 @@ is
 
    Status_Panel_Width  : constant := 100;
    Status_Panel_Height : constant := 48;
-
-private
-   --  TODO: Remove the following pragmas when video emulation is ported
-
-   pragma Unreferenced (Video_Flag_Dbl_Hires);
-   pragma Unreferenced (Video_Flag_Hires);
-   pragma Unreferenced (Video_Flag_Mask_2);
-   pragma Unreferenced (Video_Flag_Mixed);
-   pragma Unreferenced (Video_Flag_Page_2);
-   pragma Unreferenced (Video_Flag_Text);
 
 end Apple2;

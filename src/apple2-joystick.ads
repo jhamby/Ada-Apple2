@@ -25,17 +25,14 @@ package Apple2.Joystick with
 is
 
    procedure Joy_Read_Button
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural);
+     (C : in out Apple2_Base; ID : Joystick_Button; Value : out Unsigned_8);
    --  Read joystick button (in high bit)
 
    procedure Joy_Read_Position
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural);
+     (C : in out Apple2_Base; ID : Joystick_Axis; Value : out Unsigned_8);
    --  Read joystick position (paddle controller active in high bit)
 
-   procedure Joy_Reset_Position
-     (C : in out Apple2_Base; Cycles_Left : Natural);
+   procedure Joy_Reset_Position (C : in out Apple2_Base);
    --  Reset joystick position
 
 end Apple2.Joystick;

@@ -23,12 +23,10 @@ is
    RAM_Works_Banks : constant := 128;
    --  Always use the largest RAMWorks III size (128 x 64K pages = 8 MB)
 
-   RAM_Total_Banks : constant := RAM_Works_Banks + 3;
+   RAM_Total_Banks : constant := RAM_Works_Banks + 1;
    --  0       = 64K main RAM
-   --  1       = 64K internal ROM space ($C000..$FFFF or $D000..$FFFF used)
-   --  2       = 64K peripheral ROM space ($C100..$CFFF used)
-   --  3       = aux 64K: //e Extended 80 Col Card, //c, or RAMWorks III
-   --  3 - 130 = RAMWorks III banks (128 banks including aux 64K bank 3)
+   --  1       = aux 64K: //e Extended 80 Col Card, //c, or RAMWorks III
+   --  1 - 128 = RAMWorks III banks (128 banks including aux 64K bank 1)
 
    type RAM_Bank_Index is range 0 .. RAM_Total_Banks - 1;
    --  Define a type for the RAM / ROM bank index
@@ -36,13 +34,7 @@ is
    RAM_Bank_Main : constant RAM_Bank_Index := 0;
    --  bank 0 = 64K main RAM
 
-   ROM_Bank_Internal : constant RAM_Bank_Index := 1;
-   --  bank 1 = 64K internal ROM space ($C000..$FFFF or $D000..$FFFF used)
-
-   ROM_Bank_Peripheral : constant RAM_Bank_Index := 2;
-   --  bank 2 = 64K peripheral ROM space ($C100..$CFFF used)
-
-   RAM_Bank_Aux : constant RAM_Bank_Index := 3;
+   RAM_Bank_Aux_Start : constant RAM_Bank_Index := 1;
    --  bank 3 = aux 64K: //e Extended 80 Col Card, //c, or RAMWorks III
 
    RAM_All_Banks_Size : constant := RAM_Total_Banks * Mem_Bank_Size;

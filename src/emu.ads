@@ -44,6 +44,9 @@ is
    subtype Mem_Bank is Mem_Byte_Range (0 .. Mem_Bank_Size - 1);
    --  Type for a 64K bank of memory
 
+   type CPU_Cycle_Count is mod 2**64;
+   --  Unsigned 64-bit type increasing from cycle 0 at start of VBlank
+
    --  Helper functions
 
    procedure Get_Hex_Digit
@@ -57,6 +60,6 @@ is
 
    procedure Put_Hex_Byte (Chars : in out String; Digit : Unsigned_8) with
      Pre => Chars'Length = 2;
-   --  Try to parse two characters as a hexadecimal byte
+   --  Print a hex byte to the specified two character String slice
 
 end Emu;

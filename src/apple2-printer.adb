@@ -20,40 +20,43 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+with Ada.Text_IO; use Ada.Text_IO;
+
 package body Apple2.Printer with
   SPARK_Mode
 is
 
-   procedure Check_Print (C : in out Apple2_Base; Success : out Boolean);
+   procedure Check_Print (C : Apple2_Base; Success : out Boolean);
    --  Create and open the printer file and return status
 
    -----------------
    -- Print_Status --
    -----------------
 
-   procedure Print_Status (C : in out Apple2_Base; Read_Value : out Unsigned_8)
-   is
+   procedure Print_Status (C : Apple2_Base; Value : out Unsigned_8) is
       Ignore : Boolean;
    begin
       Check_Print (C, Ignore);
-      Read_Value := 16#FF#;  --  TODO: status
+      Value := 16#FF#;  --  TODO: status
+      Put_Line ("Print_Status called");
    end Print_Status;
 
    --------------------
    -- Print_Transmit --
    --------------------
 
-   procedure Print_Transmit (C : in out Apple2_Base; Write_Value : Unsigned_8)
-   is
+   procedure Print_Transmit (C : Apple2_Base; Value : Unsigned_8) is
+      pragma Unreferenced (C);
    begin
-      null;  -- TODO: add implementation
+      Put_Line ("Print_Transmit - Value: " & Value'Image);
+      --  Real code will go here
    end Print_Transmit;
 
    -----------------
    -- Check_Print --
    -----------------
 
-   procedure Check_Print (C : in out Apple2_Base; Success : out Boolean) is
+   procedure Check_Print (C : Apple2_Base; Success : out Boolean) is
       pragma Unreferenced (C);
    begin
       Success := True;  --  TODO: add implementation

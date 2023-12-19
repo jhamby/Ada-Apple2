@@ -20,21 +20,38 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+with Ada.Text_IO; use Ada.Text_IO;
+
 package body Apple2.Joystick with
   SPARK_Mode
 is
+   Last_Debug_Print_Time : CPU_Cycle_Count := 0;
+   --  Keep track of time last printed so we don't flood stdout
+
+   Debug_Print_Count : Natural := 0;
+   --  Number of debug lines printed in the past second
 
    ---------------------
    -- Joy_Read_Button --
    ---------------------
 
    procedure Joy_Read_Button
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
+     (C : in out Apple2_Base; ID : Joystick_Button; Value : out Unsigned_8)
    is
-      pragma Unreferenced (Address, Cycles_Left, C);
    begin
-      Read_Value := 0;  --  TODO: add implementation
+      if C.Cycles_Since_Boot - Last_Debug_Print_Time >= 1E6 then
+         --  Reset the debug output counter
+         Last_Debug_Print_Time := C.Cycles_Since_Boot;
+         Debug_Print_Count     := 0;
+      end if;
+
+      if Debug_Print_Count <= 100 then
+         --  debug output
+         Debug_Print_Count := Debug_Print_Count + 1;
+         Put_Line ("Joy_Read_Button - Button " & ID'Image);
+      end if;
+
+      Value := 0;  --  TODO: add implementation
    end Joy_Read_Button;
 
    -----------------------
@@ -42,21 +59,42 @@ is
    -----------------------
 
    procedure Joy_Read_Position
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
+     (C : in out Apple2_Base; ID : Joystick_Axis; Value : out Unsigned_8)
    is
-      pragma Unreferenced (Address, Cycles_Left, C);
    begin
-      Read_Value := 0;  --  TODO: add implementation
+      if C.Cycles_Since_Boot - Last_Debug_Print_Time >= 1E6 then
+         --  Reset the debug output counter
+         Last_Debug_Print_Time := C.Cycles_Since_Boot;
+         Debug_Print_Count     := 0;
+      end if;
+
+      if Debug_Print_Count <= 100 then
+         --  debug output
+         Debug_Print_Count := Debug_Print_Count + 1;
+         Put_Line ("Joy_Read_Position - Axis " & ID'Image);
+      end if;
+
+      Value := 0;  --  TODO: add implementation
    end Joy_Read_Position;
 
    ---------------------
    -- Joy_Reset_Position --
    ---------------------
 
-   procedure Joy_Reset_Position (C : in out Apple2_Base; Cycles_Left : Natural)
-   is
+   procedure Joy_Reset_Position (C : in out Apple2_Base) is
    begin
+      if C.Cycles_Since_Boot - Last_Debug_Print_Time >= 1E6 then
+         --  Reset the debug output counter
+         Last_Debug_Print_Time := C.Cycles_Since_Boot;
+         Debug_Print_Count     := 0;
+      end if;
+
+      if Debug_Print_Count <= 100 then
+         --  debug output
+         Debug_Print_Count := Debug_Print_Count + 1;
+         Put_Line ("Joy_Reset_Position ($C07x access)");
+      end if;
+
       null;  --  TODO: add implementation
    end Joy_Reset_Position;
 

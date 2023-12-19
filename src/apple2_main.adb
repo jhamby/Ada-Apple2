@@ -46,10 +46,6 @@ with Emu.Registry;    use Emu.Registry;
 
 with GNAT.OS_Lib;
 
-with Interfaces; use Interfaces;
-
-with SDL.Video.Palettes; use SDL.Video.Palettes;
-
 procedure Apple2_Main is
 
    Config_File_Name : String := Get_Config_File_Name ("linapple");
@@ -162,7 +158,6 @@ begin
 
       if Benchmark_Mode then
          Put_Line ("Benchmark mode will go here!");
-         CPU_Execute (C, Main_Mem, 10_000);
       else
          Put_Line ("SDL initializing.");
       end if;

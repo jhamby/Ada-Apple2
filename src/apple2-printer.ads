@@ -24,11 +24,10 @@ package Apple2.Printer with
   SPARK_Mode
 is
 
-   procedure Print_Status
-     (C : in out Apple2_Base; Read_Value : out Unsigned_8);
+   procedure Print_Status (C : Apple2_Base; Value : out Unsigned_8);
    --  Return the printer status (currently always returns 16#FF#)
 
-   procedure Print_Transmit (C : in out Apple2_Base; Write_Value : Unsigned_8);
+   procedure Print_Transmit (C : Apple2_Base; Value : Unsigned_8);
    --  Write a byte to the printer log file
 
 end Apple2.Printer;

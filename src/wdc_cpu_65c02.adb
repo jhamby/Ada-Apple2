@@ -29,8 +29,9 @@ is
    ---------------------------
 
    procedure CPU_Execute_WDC_65C02
-     (C            : in out CPU_6502_Series; Mem : access RAM_All_Banks;
-      Total_Cycles :        Natural)
+     (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
+      Column_Cycle, Scan_Line : in out Unsigned_16;
+      Num_Columns, Num_Lines  :        Unsigned_16)
    is
    begin
       null;  --  TODO: add implementation

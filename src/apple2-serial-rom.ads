@@ -8,9 +8,9 @@ is
 
    SSC_ROM_Size : constant := 2 * 1024;
 
-   SSC_Slot_Firmware_Offset : constant := 7 * 256;
+   SSC_Card_Firmware_Offset : constant := 7 * 256;
 
-   SSC_ROM : constant Mem_Byte_Range (0 .. SSC_ROM_Size - 1) :=
+   SSC_ROM : aliased constant Expansion_ROM_Type :=
      (16#20#,16#9B#,16#C9#,16#A9#,16#16#,16#48#,16#A9#,16#00#,16#9D#,16#B8#,16#04#,16#9D#,16#B8#,16#03#,16#9D#,16#38#,
       16#04#,16#9D#,16#B8#,16#05#,16#9D#,16#38#,16#06#,16#9D#,16#B8#,16#06#,16#B9#,16#82#,16#C0#,16#85#,16#2B#,16#4A#,
       16#4A#,16#90#,16#04#,16#68#,16#29#,16#FE#,16#48#,16#B8#,16#B9#,16#81#,16#C0#,16#4A#,16#B0#,16#07#,16#4A#,16#B0#,

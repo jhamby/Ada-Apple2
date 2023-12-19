@@ -42,24 +42,14 @@ is
       null;  --  TODO: add implementation
    end CPU_Reset;
 
-   ---------------------
-   -- CPU_Calc_Cycles --
-   ---------------------
-
-   procedure CPU_Calc_Cycles
-     (C : in out CPU_6502_Series; Cycles_Left : Natural)
-   is
-   begin
-      null;  --  TODO: add implementation
-   end CPU_Calc_Cycles;
-
    --------------------------
    -- CPU_Execute_MOS_6502 --
    --------------------------
 
    procedure CPU_Execute_MOS_6502
      (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
-      Total_Cycles :        Natural)
+      Column_Cycle, Scan_Line : in out Unsigned_16;
+      Num_Columns, Num_Lines  :        Unsigned_16)
    is
    begin
       null;  --  TODO: add implementation

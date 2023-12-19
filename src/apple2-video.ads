@@ -24,26 +24,11 @@ package Apple2.Video with
   SPARK_Mode
 is
 
-   function Video_Mode_80_Column (C : Apple2_Base) return Boolean;
-   --  Is the video in 80 column mode?
+   function Video_Get_VBL_Bar (C : Apple2_Base) return Boolean with
+     Inline;
+   --  Return the VBL' state (true for display, false for VBL)
 
-   procedure Video_Set_Mode (C : in out Apple2_Base; Address : Unsigned_16);
-   --  Set the video mode based on memory address accessed
-
-   procedure Video_Check_VBL
-     (C           : in out Apple2_Base; Read_Value : out Unsigned_8;
-      Cycles_Left :        Natural);
-   --  Return byte with keycode OR'd with VBL status in high bit
-
-   procedure Video_Check_Mode
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural);
-   --  Return byte with keycode OR'd with video mode in high bit.
-   --  For address $xx7F, return floating bus OR'd with double hires mode.
-
-   procedure Video_Get_Scanner_Address
-     (C : in out Apple2_Base; VBL_Bar : out Boolean; Bank : out RAM_Bank_Index;
-      Address :    out Unsigned_16; Executed_Cycles : Natural);
-   --  Get video scanner address and VBL' state
+   function Video_Get_Scanner_Address (C : Apple2_Base) return Unsigned_16;
+   --  Get video scanner address for floating bus read from unmapped $Cxxx
 
 end Apple2.Video;

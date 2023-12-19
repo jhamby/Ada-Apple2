@@ -24,13 +24,15 @@ package Apple2.Keyboard with
   SPARK_Mode
 is
 
-   procedure Keyb_Read_Data
-     (C : in out Apple2_Base; Read_Value : out Unsigned_8);
+   procedure Keyb_Read_Data (C : in out Apple2_Base; Value : out Unsigned_8);
    --  Read keyboard data (updates state)
 
-   procedure Keyb_Read_Flag
-     (C : in out Apple2_Base; Read_Value : out Unsigned_8);
-   --  Read keyboard flag (updates state)
+   procedure Keyb_Read_Flag (C : in out Apple2_Base; Value : out Boolean) with
+     Inline;
+   --  Read keyboard flag and clear
+
+   procedure Keyb_Reset_Flag (C : in out Apple2_Base);
+   --  Clear keyboard flag
 
    function Keyb_Get_Keycode (C : Apple2_Base) return Unsigned_8 with
      Inline;

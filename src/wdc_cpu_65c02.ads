@@ -20,7 +20,11 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+with Emu; use Emu;
+
 with Emu.Memory; use Emu.Memory;
+
+with Interfaces; use Interfaces;
 
 with MOS_CPU_6502; use MOS_CPU_6502;
 
@@ -29,8 +33,14 @@ package WDC_CPU_65C02 with
 is
 
    procedure CPU_Execute_WDC_65C02
-     (C            : in out CPU_6502_Series; Mem : access RAM_All_Banks;
-      Total_Cycles :        Natural);
-   --  Emulate a WDC W65C02S CPU for the specified number of cycles
+     (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
+      Column_Cycle, Scan_Line : in out Unsigned_16;
+      Num_Columns, Num_Lines  :        Unsigned_16);
+   --  Emulate a WDC W65C02S CPU for the specified number of cycles, in
+   --  cycles per scan line, and number of scan lines to emulate. This
+   --  will be either one line or the entire VBL interval. The current
+   --  column and scan line are passed in and out to the caller, so that
+   --  the variables in the record are only updated before bus accesses.
+   --  The minimum duration is one scan line (Num_Columns clock cycles).
 
 end WDC_CPU_65C02;

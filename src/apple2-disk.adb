@@ -20,35 +20,49 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+with Ada.Text_IO; use Ada.Text_IO;
+
 package body Apple2.Disk with
   SPARK_Mode
 is
+   Last_Debug_Print_Time : CPU_Cycle_Count := 0;
+   --  Keep track of time last printed so we don't flood stdout
 
-   ------------------
-   -- Disk_IO_Read --
-   ------------------
+   Debug_Print_Count : Natural := 0;
+   --  Number of debug lines printed in the past second
 
-   procedure Disk_IO_Read
-     (C           : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Address     :        Unsigned_16; Read_Value : out Unsigned_8;
-      Cycles_Left :        Natural)
+   --------------------
+   -- Disk_IO_Access --
+   --------------------
+
+   procedure Disk_IO_Access
+     (C        : Apple2_Base; Address : Unsigned_16; Value : in out Unsigned_8;
+      Is_Write : Boolean)
    is
-      pragma Unreferenced (Address, Cycles_Left, C, Mem);
+      Address_String : String (1 .. 4) := (others => ' ');
+      Value_String   : String (1 .. 2) := (others => ' ');
    begin
-      Read_Value := 0;  --  TODO: add implementation
-   end Disk_IO_Read;
+      if C.Cycles_Since_Boot - Last_Debug_Print_Time >= 1E6 then
+         --  Reset the debug output counter
+         Last_Debug_Print_Time := C.Cycles_Since_Boot;
+         Debug_Print_Count     := 0;
+      end if;
 
-   -------------------
-   -- Disk_IO_Write --
-   -------------------
+      if Debug_Print_Count <= 100 then
+         --  debug output
+         Debug_Print_Count := Debug_Print_Count + 1;
+         Put_Hex_Byte
+           (Address_String (1 .. 2), Unsigned_8 (Shift_Right (Address, 8)));
+         Put_Hex_Byte
+           (Address_String (3 .. 4), Unsigned_8 (Address and 16#FF#));
+         Put_Hex_Byte (Value_String, Value);
+         Put_Line
+           ("Disk_IO_Access - Address: $" & Address_String & " Value: $" &
+            Value_String & " Mode: " & (if Is_Write then "Write" else "Read"));
+      end if;
 
-   procedure Disk_IO_Write
-     (C       : in out Apple2_Base; Mem : not null access RAM_All_Banks;
-      Address : Unsigned_16; Write_Value : Unsigned_8; Cycles_Left : Natural)
-   is
-      pragma Unreferenced (Address, Cycles_Left, C, Mem, Write_Value);
-   begin
-      null;  --  TODO: add implementation
-   end Disk_IO_Write;
+      --  Real code will go here
+      Value := 0;
+   end Disk_IO_Access;
 
 end Apple2.Disk;

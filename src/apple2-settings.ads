@@ -101,7 +101,7 @@ is
 
    procedure Set_Disk_Image_Filename
      (S     : in out Settings_Type; Reg : in out Registry_Type;
-      Drive :        Disk_2_Range; New_Name : String);
+      Drive :        Disk_2_Index; New_Name : String);
    --  Set the disk image filename to use for drive 0 or 1
 
    procedure Set_Keyboard_Rocker_Switch
@@ -111,12 +111,12 @@ is
 
    procedure Set_Joystick_Type
      (S      : in out Settings_Type; Reg : in out Registry_Type;
-      Number :        Joystick_Range; New_Type : Joystick_Device);
+      Number :        Joystick_Index; New_Type : Joystick_Device);
    --  Set the device type to use to emulate joystick 0 or 1
 
    procedure Set_SDL_Joystick_ID
      (S      : in out Settings_Type; Reg : in out Registry_Type;
-      Number :        Joystick_Range; New_ID : All_Devices);
+      Number :        Joystick_Index; New_ID : All_Devices);
    --  Set the SDL joystick ID (1 .. n) to emulate joystick 0 or 1
 
    procedure Set_Printer_Filename

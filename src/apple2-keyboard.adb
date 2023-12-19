@@ -28,25 +28,31 @@ is
    -- Keyb_Read_Data --
    --------------------
 
-   procedure Keyb_Read_Data
-     (C : in out Apple2_Base; Read_Value : out Unsigned_8)
-   is
+   procedure Keyb_Read_Data (C : in out Apple2_Base; Value : out Unsigned_8) is
       pragma Unreferenced (C);
    begin
-      Read_Value := 0;  --  TODO: add implementation
+      Value := 0;  --  TODO: add implementation
    end Keyb_Read_Data;
 
    --------------------
    -- Keyb_Read_Flag --
    --------------------
 
-   procedure Keyb_Read_Flag
-     (C : in out Apple2_Base; Read_Value : out Unsigned_8)
-   is
+   procedure Keyb_Read_Flag (C : in out Apple2_Base; Value : out Boolean) is
       pragma Unreferenced (C);
    begin
-      Read_Value := 0;  --  TODO: add implementation
+      Value := False;  --  TODO: add implementation
    end Keyb_Read_Flag;
+
+   ---------------------
+   -- Keyb_Reset_Flag --
+   ---------------------
+
+   procedure Keyb_Reset_Flag (C : in out Apple2_Base) is
+      pragma Unreferenced (C);
+   begin
+      null;  --  TODO: add implementation
+   end Keyb_Reset_Flag;
 
    ----------------------
    -- Keyb_Get_Keycode --

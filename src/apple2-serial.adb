@@ -20,33 +20,52 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+with Ada.Text_IO; use Ada.Text_IO;
+
 package body Apple2.Serial with
   SPARK_Mode
 is
 
-   --------------
-   -- SSC_Read --
-   --------------
+   Last_Debug_Print_Time : CPU_Cycle_Count := 0;
+   --  Keep track of time last printed so we don't flood stdout
 
-   procedure SSC_Read
-     (C          : in out Apple2_Base; Address : Unsigned_16;
-      Read_Value :    out Unsigned_8; Cycles_Left : Natural)
+   Debug_Print_Count : Natural := 0;
+   --  Number of debug lines printed in the past second
+
+   ----------------
+   -- SSC_Access --
+   ----------------
+
+   procedure SSC_Access
+     (C        : Apple2_Base; Address : Unsigned_16; Value : in out Unsigned_8;
+      Is_Write : Boolean)
    is
-      pragma Unreferenced (Address, Cycles_Left, C);
+      Address_String : String (1 .. 4) := (others => ' ');
+      Value_String   : String (1 .. 2) := (others => ' ');
    begin
-      Read_Value := 0;  --  TODO: add implementation
-   end SSC_Read;
+      if C.Cycles_Since_Boot - Last_Debug_Print_Time >= 1E6 then
+         --  Reset the debug output counter
+         Last_Debug_Print_Time := C.Cycles_Since_Boot;
+         Debug_Print_Count     := 0;
+      else
+         Debug_Print_Count := Debug_Print_Count + 1;
+         if Debug_Print_Count <= 100 then
 
-   ---------------
-   -- SSC_Write --
-   ---------------
+            --  debug output
+            Put_Hex_Byte
+              (Address_String (1 .. 2), Unsigned_8 (Shift_Right (Address, 8)));
+            Put_Hex_Byte
+              (Address_String (3 .. 4), Unsigned_8 (Address and 16#FF#));
+            Put_Hex_Byte (Value_String, Value);
+            Put_Line
+              ("Disk_IO_Access - Address: $" & Address_String & " Value: $" &
+               Value_String & " Mode: " &
+               (if Is_Write then "Write" else "Read"));
+         end if;
+      end if;
 
-   procedure SSC_Write
-     (C : in out Apple2_Base; Address : Unsigned_16; Write_Value : Unsigned_8;
-      Cycles_Left :        Natural)
-   is
-   begin
-      null;  --  TODO: add implementation
-   end SSC_Write;
+      --  Real code will go here
+      Value := 0;
+   end SSC_Access;
 
 end Apple2.Serial;
