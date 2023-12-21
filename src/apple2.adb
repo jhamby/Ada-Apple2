@@ -70,4 +70,19 @@ is
       return C.Settings.Model;
    end Get_Apple_2_Model;
 
+   -----------------------
+   -- Cycles_Since_Boot --
+   -----------------------
+
+   function Cycles_Since_Boot (C : Apple2_Base) return CPU_Cycle_Count is
+   begin
+      if C.Settings.Video_Standard = NTSC then
+         return (C.Frames_Since_Boot * NTSC_Clocks_Per_Frame) +
+           CPU_Cycle_Count ((C.Scan_Line * Cycles_Per_Line) + C.Column_Cycle);
+      else
+         return (C.Frames_Since_Boot * PAL_Clocks_Per_Frame) +
+           CPU_Cycle_Count ((C.Scan_Line * Cycles_Per_Line) + C.Column_Cycle);
+      end if;
+   end Cycles_Since_Boot;
+
 end Apple2;

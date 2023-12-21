@@ -20,24 +20,21 @@
 --  along with AppleWin; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-with Emu; use Emu;
+with Apple2.Memory; use Apple2.Memory;
 
-with Emu.Memory; use Emu.Memory;
-
-with Interfaces; use Interfaces;
-
-with MOS_CPU_6502; use MOS_CPU_6502;
-
-package WDC_CPU_65C02 with
+package Apple2.Benchmark with
   SPARK_Mode
 is
 
-   procedure CPU_Execute_WDC_65C02
-     (C : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
-      Num_Columns, Num_Lines :        Unsigned_16);
-   --  Emulate a WDC W65C02S CPU for the specified number of cycles, in
-   --  cycles per scan line, times number of scan lines to emulate. This
-   --  will either be one line or the entire VBL interval. The minimum
-   --  duration is one scan line (Num_Columns clock cycles).
+   procedure CPU_Setup_Benchmark
+     (C : in out Computer; Mem : not null access RAM_All_Banks);
+   --  Create code segments of commonly-used opcodes in $0300 .. $03FF
 
-end WDC_CPU_65C02;
+   procedure CPU_Run_Benchmark
+     (C : in out Computer; Mem : not null access RAM_All_Banks);
+   --  Count the video frames of CPU that we can emulate in one second
+
+   procedure Benchmark_Error (PC : Unsigned_16; Cycle : CPU_Cycle_Count);
+   --  Print an error message if PC goes out of the expected address range
+
+end Apple2.Benchmark;

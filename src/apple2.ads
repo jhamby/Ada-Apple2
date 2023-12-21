@@ -308,6 +308,12 @@ is
          Mem_High_RAM_Write  => True, Video_Text => True, others => False);
       --  Soft switch and other mode flags (initialized to startup values)
 
+      Frames_Since_Boot : CPU_Cycle_Count := 0;
+      --  64-bit frame count, updated by the loop that calls CPU_Execute
+
+      Starting_Cycle : CPU_Cycle_Count := 0;
+      --  Offset of first actual emulated CPU cycle (start of first VBL)
+
       Button_State : Joystick_Button_States := (others => False);
       --  State of the three joystick buttons
 
@@ -340,6 +346,10 @@ is
    function Get_Apple_2_Model (C : Apple2_Base) return Apple_2_Model with
      Inline;
    --  Returns the current machine type
+
+   function Cycles_Since_Boot (C : Apple2_Base) return CPU_Cycle_Count with
+     Inline;
+   --  Returns the number of clock cycles since boot
 
    -----------------------------------------------------------
    --  TODO: put these hardcoded strings in a resource file --

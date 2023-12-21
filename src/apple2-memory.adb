@@ -780,7 +780,7 @@ is
       --  Initialize & reset the cpu
       --    Do this after ROM has been copied back to mem, so that PC is
       --      correctly init'ed from 6502's reset vector
-      CPU_Initialize (C);
+      CPU_Initialize (C, Mem);
    end Mem_Reset;
 
 end Apple2.Memory;

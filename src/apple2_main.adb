@@ -35,8 +35,9 @@ with Ada.Text_IO;           use Ada.Text_IO;
 
 with Apple2; use Apple2;
 
-with Apple2.Memory;   use Apple2.Memory;
-with Apple2.Settings; use Apple2.Settings;
+with Apple2.Benchmark; use Apple2.Benchmark;
+with Apple2.Memory;    use Apple2.Memory;
+with Apple2.Settings;  use Apple2.Settings;
 
 with Emu; use Emu;
 
@@ -155,6 +156,10 @@ begin
       --  Note: the access variable is constant, but the RAM itself is not
    begin
       Init_Apple2 (C, Main_Mem);
+
+      --  always run CPU benchmark for now
+      CPU_Setup_Benchmark (C, Main_Mem);
+      CPU_Run_Benchmark (C, Main_Mem);
 
       if Benchmark_Mode then
          Put_Line ("Benchmark mode will go here!");
