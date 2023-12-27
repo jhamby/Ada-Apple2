@@ -15,7 +15,7 @@ project Apple2 is
 
    package Compiler is
       for Default_Switches ("Ada") use
-         ("-gnata", "-gnateE", "-gnaty", "-gnatyg", "-gnatwa");
+         ("-gnata", "-gnateE", "-gnaty", "-gnatyg", "-gnatwa", "-g");
    end Compiler;
 
    package Linker is
