@@ -45,243 +45,191 @@ package body Apple2.Memory with
   SPARK_Mode
 is
 
-   procedure IO_Access_Cxxx
-     (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean);
-   --  Read or write a byte from I/O, soft switches, or ROMs ($C000 .. $CFFF)
-
-   procedure IO_Write_C00x (C : in out Computer; Address : Unsigned_16);
+   procedure IO_Write_C00x (C : in out Computer; Address : Unsigned_16) with
+     Inline;
    --  Write a byte to a mode switch in $C000 .. $C00F
 
    procedure IO_Read_C01x
-     (C : in out Computer; Address : Unsigned_16; Value : out Unsigned_8);
+     (C : in out Computer; Address : Unsigned_16; Value : out Unsigned_8) with
+     Inline;
    --  Read from keyboard or a mode switch in $C010 .. $C01F
 
    procedure IO_Access_C05x
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean);
+      Address :        Unsigned_16);
    --  Read or write a byte from soft switches in $C050 .. $C05F
 
    procedure IO_Read_C06x
      (C       : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Address :        Unsigned_16; Value : out Unsigned_8);
+      Address :        Unsigned_16; Value : out Unsigned_8) with
+     Inline;
    --  Read joystick/paddle buttons and axes in $C060 .. $C06F
 
-   procedure IO_Access_C07x
+   procedure IO_Read_C07x
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean);
-   --  Read or write a byte from soft switches in $C070 .. $C07F
+      Address :        Unsigned_16; Value : out Unsigned_8) with
+     Inline;
+   --  Read a byte from soft switches in $C070 .. $C07F
 
-   procedure IO_Read_C08x (C : in out Computer; Address : Unsigned_16);
+   procedure IO_Write_C07x
+     (C       : in out Computer; Mem : not null access RAM_All_Banks;
+      Address :        Unsigned_16; Value : Unsigned_8) with
+     Inline;
+   --  Write a byte to soft switches in $C070 .. $C07F
+
+   procedure IO_Read_C08x (C : in out Computer; Address : Unsigned_16) with
+     Inline;
    --  Update bank select switches in $C080 .. $C08F
 
    procedure IO_Read_C1xx
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :        Unsigned_16; Value : in out Unsigned_8);
+      Address :        Unsigned_16; Value : in out Unsigned_8) with
+     Inline;
    --  Read ROMs or floating bus
 
    procedure IO_Annunciator (ID : Unsigned_8; Enable : Boolean);
    --  Print debug line if program uses the annunciators
 
-   -------------------
-   -- Mem_IO_Access --
-   -------------------
+   -------------------------
+   -- Mem_IO_Read_Special --
+   -------------------------
 
-   overriding procedure Mem_IO_Access
+   overriding procedure Mem_IO_Read_Special
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean)
+      Address :        Unsigned_16; Value : out Unsigned_8)
    is
-      Mode         : constant Mode_Flags := C.Mode;  --  local read-only copy
-      Bank : RAM_Bank_Index      := RAM_Bank_Main;  --  bank 0 unless changed
-      Real_Address : Unsigned_16 := Address;  --  modifiable copy of Address
+      CxNx : constant Unsigned_4 :=
+        Unsigned_4 (Shift_Right (Address, 4) and 16#0F#);
    begin
-      if (Address and 16#FE00#) = 0 then
-         --  zero and stack page bank select rules ($0000 .. $01FF)
-         if Mode.Mem_Alt_ZP then
-            Bank := C.RAM_Active_Aux_Bank;
-         end if;
+      if (Address and 16#CF00#) = 16#C000# then
+         case CxNx is
+            when 16#00# =>
+               --  Keyboard read and mode switches
+               Keyb_Read_Data (Apple2_Base (C), Value);
 
-      elsif (Address and 16#C000#) /= 16#C000# then
-         --  Main 48K RAM bank select rules ($0200 .. $BFFF)
-         declare
-            Page : constant Unsigned_8 :=
-              Unsigned_8 (Shift_Right (Address, 8));
-         begin
-            --  aux. display page control switches take precedence over
-            --  aux. RAM switches for the pages being used for the display
-            if Mode.Mem_80_Store
-              and then
-              ((Page >= 16#04# and Page < 16#08#)
-               or else
-               (Mode.Video_Hi_Res and then (Page >= 16#20# and Page < 16#40#)))
-            then
-               if Mode.Video_Page_2 then
-                  Bank := C.RAM_Active_Aux_Bank;
-               end if;
-            else
-               if Is_Write then
-                  if Mode.Mem_Aux_Write then
-                     Bank := C.RAM_Active_Aux_Bank;
-                  end if;
-               else
-                  if Mode.Mem_Aux_Read then
-                     Bank := C.RAM_Active_Aux_Bank;
-                  end if;
-               end if;
-            end if;
-         end;
+            when 16#01# =>
+               --  Keyboard strobe reset, any key down, and mode switches
+               IO_Read_C01x (C, Address, Value);
 
-      elsif (Address and 16#3000#) /= 0 then
-         --  ROM and high RAM bank select rules ($D000 .. $FFFF)
-         if Is_Write then
+            when 16#02# | 16#04# | 16#0B# | 16#0F# =>
+               --  Cassette interface, unused, empty slots 3 and 7
+               Mem_Read_Floating_Bus (C, Mem, Value);
 
-            --  Handle the write case first
-            if not Mode.Mem_High_RAM_Write then
-               --  current mode discards writes to bank-switched RAM.
-               --  Return here instead of falling through to Mem_Access.
-               return;
-            else
-               if Mode.Mem_Alt_ZP then
-                  Bank := C.RAM_Active_Aux_Bank;
-               end if;
-            end if;
+            when 16#03# =>
+               --  Speaker click
+               Spkr_Toggle (Apple2_Base (C));
 
-            --  The RAM at $Cxxx can be mapped to $Dxxx using this switch
-            if (Address and 16#3000#) = 1 and not Mode.Mem_High_RAM_Bank_2 then
-               Real_Address := Address - 16#1000#;
-            end if;
+            when 16#05# =>
+               --  Video / Memory
+               IO_Access_C05x (C, Mem, Address);
+               Mem_Read_Floating_Bus (C, Mem, Value);
 
-         else
-            --  Reading is similar to writing, but with ROMs added
-            if not Mode.Mem_High_RAM then
-               Value := C.System_ROM (Natural (Address - 16#D000#));
-               return;  --  don't fall through to Mem_Access
-            else
-               if Mode.Mem_Alt_ZP then
-                  Bank := C.RAM_Active_Aux_Bank;
-               end if;
+            when 16#06# =>
+               --  Joystick
+               IO_Read_C06x (C, Mem, Address, Value);
 
-               --  The RAM at $Cxxx can be mapped to $Dxxx using this switch
-               if (Address and 16#3000#) = 1 and not Mode.Mem_High_RAM_Bank_2
-               then
-                  Real_Address := Address - 16#1000#;
-               end if;
-            end if;
-         end if;
+            when 16#07# =>
+               --  Joystick timer reset / Video / RAMWorks bank
+               IO_Read_C07x (C, Mem, Address, Value);
 
+            when 16#08# =>
+               --  memory bank select switches
+               IO_Read_C08x (C, Address);
+               Mem_Update_Paging (C, Mem);
+               Mem_Read_Floating_Bus (C, Mem, Value);
+
+            when 16#09# =>
+               --  slot 1 (parallel printer card)
+               Print_Status (Apple2_Base (C), Value);
+
+            when 16#0A# =>
+               --  slot 2 (super serial card)
+               SSC_Read (Apple2_Base (C), Address, Value);
+
+            when 16#0C# =>
+               --  slot 4 (Mockingboard or mouse)
+               Phasor_IO (Apple2_Base (C), Mem, Address);
+               Mem_Read_Floating_Bus (C, Mem, Value);
+
+            when 16#0D# =>
+               --  slot 5 (Phasor sound card)
+               Phasor_IO (Apple2_Base (C), Mem, Address);
+               Mem_Read_Floating_Bus (C, Mem, Value);
+
+            when 16#0E# =>
+               --  slot 6 (Disk ][)
+               Disk_IO_Read (Apple2_Base (C), Address, Value);
+         end case;
       else
-         --  4K of I/O, soft switches, and ROMs ($C000 .. $CFFF)
-         --  Handle separately and then return (don't touch $Cxxx RAM)
-         IO_Access_Cxxx (C, Mem, Address, Value, Is_Write);
-         return;
-
+         IO_Read_C1xx (C, Mem, Address, Value);
       end if;
+   end Mem_IO_Read_Special;
 
-      --  Read or write the value to the computed memory bank and address.
-      --  All code paths except write-disabled writes and $Cxxx arrive here.
-      Mem_Access (Mem, Bank, Real_Address, Value, Is_Write);
+   --------------------------
+   -- Mem_IO_Write_Special --
+   --------------------------
 
-   end Mem_IO_Access;
-
-   --------------------
-   -- IO_Access_Cxxx --
-   --------------------
-
-   procedure IO_Access_Cxxx
+   overriding procedure Mem_IO_Write_Special
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean)
+      Address :        Unsigned_16; Value : Unsigned_8)
    is
-      Middle_Byte : constant Unsigned_8 :=
-        Unsigned_8 (Shift_Right (Address, 4) and 16#FF#);
+      CxNx : constant Unsigned_4 :=
+        Unsigned_4 (Shift_Right (Address, 4) and 16#0F#);
    begin
-      --  Use the middle two nybbles to decide what to do next
-      case Middle_Byte is
-         when 16#00# =>
-            --  Keyboard read and mode switches
-            if Is_Write then
+      --  $C400 .. $C5xx are writes to slot 4 and 5 address space
+      if (Address and 16#CE00#) = 16#C400# then
+         Phasor_IO (Apple2_Base (C), Mem, Address);
+      elsif (Address and 16#CF00#) = 16#C000# then
+         case CxNx is
+            when 16#00# =>
+               --  Keyboard read and mode switches
                if not Is_Apple2 (C) then
                   IO_Write_C00x (C, Address);
+                  Mem_Update_Paging (C, Mem);
                end if;
-            else
-               Keyb_Read_Data (Apple2_Base (C), Value);
-            end if;
 
-         when 16#01# =>
-            --  Keyboard strobe reset, any key down, and mode switches
-            if Is_Write then
+            when 16#01# =>
+               --  Keyboard strobe reset, any key down, and mode switches
                Keyb_Reset_Flag (Apple2_Base (C));
-            else
-               IO_Read_C01x (C, Address, Value);
-            end if;
 
-         when 16#02# | 16#04# | 16#0B# | 16#0F# =>
-            --  Cassette interface, unused, empty slots 3 and 7
-            if not Is_Write then
-               Mem_Read_Floating_Bus (C, Mem, Value);
-            end if;
+            when 16#03# =>
+               --  Speaker click
+               Spkr_Toggle (Apple2_Base (C));
 
-         when 16#03# =>
-            --  Speaker click (writes may not be audible if CPU writes twice)
-            Spkr_Toggle (Apple2_Base (C), Is_Write);
+            when 16#05# =>
+               --  Video / Memory
+               IO_Access_C05x (C, Mem, Address);
 
-         when 16#05# =>
-            --  Video / Memory
-            IO_Access_C05x (C, Mem, Address, Value, Is_Write);
+            when 16#07# =>
+               --  Joystick timer reset / Video / RAMWorks bank
+               IO_Write_C07x (C, Mem, Address, Value);
 
-         when 16#06# =>
-            --  Joystick
-            if not Is_Write then
-               IO_Read_C06x (C, Mem, Address, Value);
-            end if;
+            when 16#09# =>
+               --  slot 1 (parallel printer card)
+               Print_Transmit (Apple2_Base (C), Value);
 
-         when 16#07# =>
-            --  Joystick timer reset / Video / RAMWorks bank
-            IO_Access_C07x (C, Mem, Address, Value, Is_Write);
+            when 16#0A# =>
+               --  slot 2 (super serial card)
+               SSC_Write (Apple2_Base (C), Address, Value);
 
-         when 16#08# =>
-            --  memory bank select switches
-            if not Is_Write then
-               IO_Read_C08x (C, Address);
-               Mem_Read_Floating_Bus (C, Mem, Value);
-            else
-               Put_Line ("IO_Access_Cxxx - ignoring write to $C08x");
-            end if;
+            when 16#0C# =>
+               --  slot 4 (Mockingboard or mouse)
+               Phasor_IO (Apple2_Base (C), Mem, Address);
 
-         when 16#09# =>
-            --  slot 1 (parallel printer card)
-            Print_Status (Apple2_Base (C), Value);
+            when 16#0D# =>
+               --  slot 5 (Phasor sound card)
+               Phasor_IO (Apple2_Base (C), Mem, Address);
 
-         when 16#0A# =>
-            --  slot 2 (super serial card)
-            SSC_Access (Apple2_Base (C), Address, Value, Is_Write);
+            when 16#0E# =>
+               --  slot 6 (Disk ][)
+               Disk_IO_Write (Apple2_Base (C), Address, Value);
 
-         when 16#0C# =>
-            --  slot 4 (Mockingboard or mouse)
-            Phasor_IO (Apple2_Base (C), Mem, Address);
-            Mem_Read_Floating_Bus (C, Mem, Value);
-
-         when 16#0D# =>
-            --  slot 5 (Phasor sound card)
-            Phasor_IO (Apple2_Base (C), Mem, Address);
-            Mem_Read_Floating_Bus (C, Mem, Value);
-
-         when 16#0E# =>
-            --  slot 6 (Disk ][)
-            Disk_IO_Access (Apple2_Base (C), Address, Value, Is_Write);
-
-         when 16#40# .. 16#5F# =>
-            --  slots 4 and 5 $C400 .. $C5FF space (Mockingboard / Phasor)
-            MB_Access (Apple2_Base (C), Address, Value, Is_Write);
-
-         when others =>
-            --  read ROM or floating bus
-            if not Is_Write then
-               IO_Read_C1xx (C, Mem, Address, Value);
-            end if;
-
-      end case;
-
-   end IO_Access_Cxxx;
+            when 16#02# | 16#04# | 16#06# | 16#08# | 16#0B# | 16#0F# =>
+               --  Cassette interface, unused, empty slots 3 and 7
+               null;
+         end case;
+      end if;
+   end Mem_IO_Write_Special;
 
    -------------------
    -- IO_Write_C00x --
@@ -338,9 +286,7 @@ is
 
          when 16#0F# =>
             C.Mode.Video_Alt_Charset := True;
-
       end case;
-
    end IO_Write_C00x;
 
    ------------------
@@ -420,7 +366,7 @@ is
 
    procedure IO_Access_C05x
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean)
+      Address :        Unsigned_16)
    is
       Offset : constant Unsigned_4 := Unsigned_4 (Address and 16#0F#);
    begin
@@ -473,9 +419,7 @@ is
 
       end case;
 
-      if not Is_Write then
-         Mem_Read_Floating_Bus (C, Mem, Value);
-      end if;
+      Mem_Update_Paging (C, Mem);
 
    end IO_Access_C05x;
 
@@ -504,59 +448,55 @@ is
       end case;
    end IO_Read_C06x;
 
-   --------------------
-   -- IO_Access_C07x --
-   --------------------
+   ------------------
+   -- IO_Read_C07x --
+   ------------------
 
-   procedure IO_Access_C07x
+   procedure IO_Read_C07x
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean)
+      Address :        Unsigned_16; Value : out Unsigned_8)
    is
       Offset : constant Unsigned_4 := Unsigned_4 (Address and 16#0F#);
    begin
-      --  All accesses reset the joystick resistance timer
+      --  Reads and writes reset the joystick resistance timer
       Joy_Reset_Position (Apple2_Base (C));
 
-      case Offset is
-         when 16#01# | 16#03# =>
-            if Is_Write then
-               --  16#71# - extended memory aux page number
-               --  16#73# - RAMWorks III set aux page number
-               if Value < RAM_Works_Banks then
-                  declare
-                     New_Bank : constant RAM_Bank_Index :=
-                       RAM_Bank_Index (Value) + RAM_Bank_Aux_Start;
-                  begin
-                     if New_Bank /= C.RAM_Active_Aux_Bank then
-                        C.RAM_Active_Aux_Bank := New_Bank;
+      if Offset = 16#0F# and C.Mode.Video_Dbl_Hi_Res_Visible then
+         Mem_Read_Floating_Bus (C, Mem, C.Mode.Video_Dbl_Hi_Res, Value);
+      else
+         Mem_Read_Floating_Bus (C, Mem, Value);
+      end if;
+   end IO_Read_C07x;
 
-                        C.RAM_Max_Bank_Used :=
-                          RAM_Bank_Index'Max (C.RAM_Max_Bank_Used, New_Bank);
-                     end if;
-                  end;
-               end if;
-            else
-               Mem_Read_Floating_Bus (C, Mem, Value);
+   -------------------
+   -- IO_Write_C07x --
+   -------------------
+
+   procedure IO_Write_C07x
+     (C       : in out Computer; Mem : not null access RAM_All_Banks;
+      Address :        Unsigned_16; Value : Unsigned_8)
+   is
+      Offset : constant Unsigned_4 := Unsigned_4 (Address and 16#0F#);
+   begin
+      --  Reads and writes reset the joystick resistance timer
+      Joy_Reset_Position (Apple2_Base (C));
+
+      if (Offset = 16#01# or Offset = 16#03#) and Value < RAM_Works_Banks then
+         declare
+            New_Bank : constant RAM_Bank_Index :=
+              RAM_Bank_Index (Value) + RAM_Bank_Aux_Start;
+         begin
+            if New_Bank /= C.RAM_Active_Aux_Bank then
+               C.RAM_Active_Aux_Bank := New_Bank;
+
+               C.RAM_Max_Bank_Used :=
+                 RAM_Bank_Index'Max (C.RAM_Max_Bank_Used, New_Bank);
+
+               Mem_Update_Paging (C, Mem);
             end if;
-
-         when 16#0F# =>
-            --  read DHIRES mode (Apple IIe)
-            if not Is_Write then
-               if C.Mode.Video_Dbl_Hi_Res_Visible then
-                  Mem_Read_Floating_Bus
-                    (C, Mem, C.Mode.Video_Dbl_Hi_Res, Value);
-               else
-                  Mem_Read_Floating_Bus (C, Mem, Value);
-               end if;
-            end if;
-
-         when others =>
-            if not Is_Write then
-               Mem_Read_Floating_Bus (C, Mem, Value);
-            end if;
-
-      end case;
-   end IO_Access_C07x;
+         end;
+      end if;
+   end IO_Write_C07x;
 
    ------------------
    -- IO_Read_C08x --
@@ -587,7 +527,6 @@ is
          --  write high RAM bit clear; reset write latch cycle count
          C.High_RAM_Write_Latch_Cycle := 0;
       end if;
-
    end IO_Read_C08x;
 
    ------------------
@@ -630,12 +569,12 @@ is
          then
             Value :=
               C.Expansion_ROMs (C.IO_Select_Slot)
-                (Natural (Address - Expansion_ROM_Start));
+                (Unsigned_32 (Address - Expansion_ROM_Start));
             return;
          end if;
       elsif C.Mode.Mem_Slot_CX_ROM or (C.Mode.Mem_Slot_C3_ROM and Slot = 3)
       then
-         Value := C.Card_ROMs (Slot) (Natural (Address and 16#FF#));
+         Value := C.Card_ROMs (Slot) (Unsigned_32 (Address and 16#FF#));
          return;
       end if;
 
@@ -643,7 +582,8 @@ is
       if Is_Apple2 (C) then
          Mem_Read_Floating_Bus (C, Mem, Value);
       else
-         Value := C.Extra_ROM (Natural (Address - Apple_IO_Start));
+         Value := Mem (16#01_0000# or Unsigned_32 (Address));
+         --  Read Apple IIe firmware from ROM bank
       end if;
    end IO_Read_C1xx;
 
@@ -668,23 +608,19 @@ is
    begin
       case C.Settings.Model is
          when Apple_2 =>
-            C.System_ROM := Apple_2_ROM;
-            --  12KB ROM
+            Mem (16#01_D000# .. 16#01_FFFF#) := Apple_2_ROM;
+            --  12KB ROM in second 64K bank
 
          when Apple_2_Plus =>
-            C.System_ROM := Apple_2_Plus_ROM;
+            Mem (16#01_D000# .. 16#01_FFFF#) := Apple_2_Plus_ROM;
             --  12KB ROM
 
          when Apple_2e =>
-            C.System_ROM :=
-              Apple_2e_ROM (Extra_ROM_Size .. Apple_2e_ROM_Size - 1);
-            C.Extra_ROM  := Apple_2e_ROM (0 .. Extra_ROM_Size - 1);
-            --  16KB ROM
+            Mem (16#01_C000# .. 16#01_FFFF#) := Apple_2e_ROM;
+            --  16KB ROM in second 64KB bank
 
          when others =>
-            C.System_ROM :=
-              Apple_2e_Enhanced_ROM (Extra_ROM_Size .. Apple_2e_ROM_Size - 1);
-            C.Extra_ROM  := Apple_2e_Enhanced_ROM (0 .. Extra_ROM_Size - 1);
+            Mem (16#01_C000# .. 16#01_FFFF#) := Apple_2e_Enhanced_ROM;
             --  16KB ROM
       end case;
 
@@ -704,18 +640,120 @@ is
       Mem_Reset (C, Mem);
    end Init_Apple2;
 
+   -----------------------
+   -- Mem_Update_Paging --
+   -----------------------
+
+   procedure Mem_Update_Paging
+     (C : in out Computer; Mem : not null access RAM_All_Banks)
+   is
+      Mode       : constant Mode_Flags  := C.Mode;
+      Aux_Offset : constant Unsigned_16 :=
+        Shift_Left (Unsigned_16 (C.RAM_Active_Aux_Bank), 8);
+      ROM_Offset : constant Unsigned_16 :=
+        Shift_Left (Unsigned_16 (RAM_Bank_ROMs), 8);
+   begin
+      --  Zero page and stack page ($0000 .. $01FF)
+      if Mode.Mem_Alt_ZP then
+         C.Page_Table_Read (16#00#)  := Aux_Offset;
+         C.Page_Table_Read (16#01#)  := Aux_Offset or 16#01#;
+         C.Page_Table_Write (16#00#) := Aux_Offset;
+         C.Page_Table_Write (16#01#) := Aux_Offset or 16#01#;
+      else
+         C.Page_Table_Read (16#00#)  := 16#0000#;
+         C.Page_Table_Read (16#01#)  := 16#0001#;
+         C.Page_Table_Write (16#00#) := 16#0000#;
+         C.Page_Table_Write (16#01#) := 16#0001#;
+      end if;
+
+      --  48K main memory ($0200 .. $BFFF)
+      declare
+         Read_Page  : constant Unsigned_16 :=
+           (if Mode.Mem_Aux_Read then Aux_Offset else 16#0000#);
+         Write_Page : constant Unsigned_16 :=
+           (if Mode.Mem_Aux_Write then Aux_Offset else 16#0000#);
+      begin
+         for I in Unsigned_8 (16#02#) .. Unsigned_8 (16#BF#) loop
+            C.Page_Table_Read (I)  := Read_Page or Unsigned_16 (I);
+            C.Page_Table_Write (I) := Write_Page or Unsigned_16 (I);
+         end loop;
+      end;
+
+      --  80 column store mapping mode for graphics pages
+      if Mode.Mem_80_Store then
+         declare
+            Video_Page : constant Unsigned_16 :=
+              (if Mode.Video_Page_2 then Aux_Offset else 16#0000#);
+         begin
+            for I in Unsigned_8 (16#04#) .. Unsigned_8 (16#07#) loop
+               C.Page_Table_Read (I)  := Video_Page or Unsigned_16 (I);
+               C.Page_Table_Write (I) := Video_Page or Unsigned_16 (I);
+            end loop;
+
+            if Mode.Video_Hi_Res then
+               for I in Unsigned_8 (16#20#) .. Unsigned_8 (16#3F#) loop
+                  C.Page_Table_Read (I)  := Video_Page or Unsigned_16 (I);
+                  C.Page_Table_Write (I) := Video_Page or Unsigned_16 (I);
+               end loop;
+            end if;
+         end;
+      end if;
+
+      --  $Cxxx is always I/O space (memory reads select expansion ROM)
+      --  $C000 .. $C0FF - I/O registers for system devices and slots
+      --  $C100 .. $CFFF - internal ROM (!SLOTCXROM)
+      --  $C300 .. $C3FF - internal ROM (!SLOTCXROM or !SLOTC3ROM)
+      --  $Cs00 .. $CsFF - 256-byte slot ROMs or I/O space (SLOTCXROM)
+      --  $C800 .. $CFFF - selected expansion ROM or internal ROM
+
+      declare
+         --  Alt ZP switch also selects the high RAM bank to use
+         Page : constant Unsigned_16 :=
+           (if Mode.Mem_High_RAM then
+              (if Mode.Mem_Alt_ZP then Aux_Offset else 16#0000#)
+            else ROM_Offset);
+
+         --  RAM at $Cxxx can be remapped to $Dxxx with this switch
+         --  (two banks of 4K within each 64K RAM bank)
+         D_Offset : constant Unsigned_16 :=
+           (if Mode.Mem_High_RAM_Bank_2 then 16#00# else 16#10#);
+      begin
+         --  $D000 .. $DFFF - $Cxxx or $Dxxx, write enable switch, or ROM
+         for I in Unsigned_8 (16#D0#) .. Unsigned_8 (16#DF#) loop
+            if Mode.Mem_High_RAM_Write then
+               C.Page_Table_Write (I) := (Page or Unsigned_16 (I)) - D_Offset;
+            else
+               C.Page_Table_Write (I) := ROM_Offset;  --  ignored writes
+            end if;
+            C.Page_Table_Read (I) := (Page or Unsigned_16 (I)) - D_Offset;
+         end loop;
+
+         --  $E000 .. $FFFF - write enable switch, plus ROM
+         for I in Unsigned_8 (16#E0#) .. Unsigned_8 (16#FF#) loop
+            if Mode.Mem_High_RAM_Write then
+               C.Page_Table_Write (I) := Page or Unsigned_16 (I);
+            else
+               C.Page_Table_Write (I) := ROM_Offset;  --  ignored writes
+            end if;
+            C.Page_Table_Read (I) := Page or Unsigned_16 (I);
+         end loop;
+      end;
+
+   end Mem_Update_Paging;
+
    ---------------------------
    -- Mem_Read_Floating_Bus --
    ---------------------------
 
    procedure Mem_Read_Floating_Bus
      (C     : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Value : in out Unsigned_8)
+      Value :    out Unsigned_8)
    is
       Address : Unsigned_16;
    begin
       Address := Video_Get_Scanner_Address (Apple2_Base (C));
-      Mem_Read (Mem, RAM_Bank_Main, Address, Value);
+      Value   := Mem (Unsigned_32 (Address));
+      --  Always read from bank 0 since it's what the CPU might see on the bus
    end Mem_Read_Floating_Bus;
 
    --------------------------------------
@@ -724,16 +762,15 @@ is
 
    procedure Mem_Read_Floating_Bus
      (C        : in out Computer; Mem : not null access constant RAM_All_Banks;
-      High_Bit :        Boolean; Value : in out Unsigned_8)
+      High_Bit :        Boolean; Value : out Unsigned_8)
    is
-      Temp_Value : Unsigned_8;
    begin
-      Mem_Read_Floating_Bus (C, Mem, Temp_Value);
-      Temp_Value := Temp_Value and 16#7F#;
+      Mem_Read_Floating_Bus (C, Mem, Value);
+
       if High_Bit then
-         Value := Temp_Value or 16#80#;
+         Value := Value or 16#80#;
       else
-         Value := Temp_Value;
+         Value := Value and 16#7F#;
       end if;
    end Mem_Read_Floating_Bus;
 
@@ -750,6 +787,14 @@ is
         (Mem_High_RAM_Bank_2 => True, Mem_Slot_CX_ROM => True,
          Mem_High_RAM_Write  => True, others => False);
 
+      --  Reset the read and write page tables
+      Mem_Update_Paging (C, Mem);
+
+      for I in Unsigned_8 (16#C0#) .. Unsigned_8 (16#CF#) loop
+         C.Page_Table_Read (I)  := 16#FFFF#;  --  special handling
+         C.Page_Table_Write (I) := 16#FFFF#;
+      end loop;
+
       --  DHIRES replaces annunciator outputs on Apple IIe unless disabled
       if not Is_Apple2 (C) then
          C.Mode.Video_Dbl_Hi_Res_Visible := True;
@@ -759,7 +804,7 @@ is
 
       --  Initialize the first two RAM banks with 16#FF00# pattern
       declare
-         I : Natural := 0;
+         I : Unsigned_32 := 0;
       begin
          --  Pattern fill first 64K of RAM
          while I <= 16#FFFF# loop

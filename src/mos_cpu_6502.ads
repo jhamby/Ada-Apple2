@@ -47,6 +47,9 @@ is
      (P_Flag_Carry or P_Flag_Negative or P_Flag_Overflow or P_Flag_Zero or
       P_Flag_Decimal_Mode);
 
+   type Mem_Page_Offset_Table is array (Unsigned_8) of Unsigned_16;
+   --  Table of per-page offsets to add for memory reads and writes
+
    type CPU_6502_Series is abstract tagged record
 
       A, X, Y : Unsigned_8 := 16#FF#;  -- Accumulator, index X, and index Y
@@ -67,6 +70,12 @@ is
       --  current scan line (will be start of VBL at start & end of frame),
       --  updated by the CPU on scan line change
 
+      Page_Table_Read : Mem_Page_Offset_Table := (others => 0);
+      --  page table for memory reads (16#FFFF# for I/O)
+
+      Page_Table_Write : Mem_Page_Offset_Table := (others => 0);
+      --  page table for memory writes (16#FFFF# for I/O)
+
    end record;
    --  Inherited by computers using an MOS 6502, WDC 65C02, or similar
 
@@ -86,11 +95,15 @@ is
    --  will either be one line or the entire VBL interval. The minimum
    --  duration is one scan line (Num_Columns clock cycles).
 
-   procedure Mem_IO_Access
-     (C        : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
-      Address  :        Unsigned_16; Value : in out Unsigned_8;
-      Is_Write :        Boolean) is abstract;
-   --  Read or write a byte from RAM, ROM, I/O space, or floating bus
+   procedure Mem_IO_Read_Special
+     (C       : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
+      Address :        Unsigned_16; Value : out Unsigned_8) is abstract;
+   --  Read a byte from I/O space, or floating bus
+
+   procedure Mem_IO_Write_Special
+     (C       : in out CPU_6502_Series; Mem : not null access RAM_All_Banks;
+      Address :        Unsigned_16; Value : Unsigned_8) is abstract;
+   --  Write a byte to I/O space
 
    procedure Mem_IO_Read
      (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;

@@ -24,34 +24,6 @@ package body Apple2 with
   SPARK_Mode
 is
 
-   ----------------
-   -- Mem_Access --
-   ----------------
-
-   procedure Mem_Access
-     (Mem     : not null access RAM_All_Banks; Bank : RAM_Bank_Index;
-      Address : Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean)
-   is
-   begin
-      if Is_Write then
-         Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address)) := Value;
-      else
-         Value := Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address));
-      end if;
-   end Mem_Access;
-
-   --------------
-   -- Mem_Read --
-   --------------
-
-   procedure Mem_Read
-     (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
-      Address : Unsigned_16; Value : out Unsigned_8)
-   is
-   begin
-      Value := Mem (Natural (Bank) * Mem_Bank_Size + Natural (Address));
-   end Mem_Read;
-
    ---------------
    -- Is_Apple2 --
    ---------------

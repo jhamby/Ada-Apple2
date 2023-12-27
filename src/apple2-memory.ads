@@ -47,10 +47,6 @@ is
 
    type Computer is new Apple2_Base with record
 
-      System_ROM : System_ROM_Type := (others => 0);
-
-      Extra_ROM : Extra_ROM_Type := (others => 0);
-
       Card_ROMs : Card_ROM_Array := (others => (others => 0));
 
       Expansion_ROMs : Expansion_ROM_Array := (others => null);
@@ -85,23 +81,32 @@ is
    Expansion_ROM_End : constant Unsigned_16 := 16#CFFF#;
    --  End of I/O address range
 
-   overriding procedure Mem_IO_Access
+   overriding procedure Mem_IO_Read_Special
      (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :    Unsigned_16; Value : in out Unsigned_8; Is_Write : Boolean);
-   --  Read or write a byte from RAM, ROM, I/O space, or floating bus
+      Address :        Unsigned_16; Value : out Unsigned_8);
+   --  Read a byte from I/O space or floating bus
+
+   overriding procedure Mem_IO_Write_Special
+     (C       : in out Computer; Mem : not null access RAM_All_Banks;
+      Address :        Unsigned_16; Value : Unsigned_8);
+   --  Write a byte to I/O space
 
    procedure Init_Apple2
      (C : in out Computer; Mem : not null access RAM_All_Banks);
    --  Initialize ROMs and clear RAM
 
+   procedure Mem_Update_Paging
+     (C : in out Computer; Mem : not null access RAM_All_Banks);
+   --  Update read and write paging tables
+
    procedure Mem_Read_Floating_Bus
      (C     : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Value : in out Unsigned_8);
+      Value :    out Unsigned_8);
    --  Read floating bus address and advance cycle counter
 
    procedure Mem_Read_Floating_Bus
      (C        : in out Computer; Mem : not null access constant RAM_All_Banks;
-      High_Bit :        Boolean; Value : in out Unsigned_8);
+      High_Bit :        Boolean; Value : out Unsigned_8);
    --  Read floating bus address, replacing high bit of result
 
    procedure Mem_Reset

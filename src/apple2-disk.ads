@@ -24,9 +24,12 @@ package Apple2.Disk with
   SPARK_Mode
 is
 
-   procedure Disk_IO_Access
-     (C        : Apple2_Base; Address : Unsigned_16; Value : in out Unsigned_8;
-      Is_Write : Boolean);
-   --  Read or write to the Disk ][ I/O space
+   procedure Disk_IO_Read
+     (C : Apple2_Base; Address : Unsigned_16; Value : out Unsigned_8);
+   --  Read from the Disk ][ I/O space ($C06x)
+
+   procedure Disk_IO_Write
+     (C : Apple2_Base; Address : Unsigned_16; Value : Unsigned_8);
+   --  Write to the Disk ][ I/O space ($C06x)
 
 end Apple2.Disk;

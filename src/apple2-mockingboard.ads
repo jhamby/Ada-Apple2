@@ -29,9 +29,14 @@ is
       Address :        Unsigned_16);
    --  Read or write Mockingboard / Phasor I/O space ($C0xx)
 
-   procedure MB_Access
-     (C        : Apple2_Base; Address : Unsigned_16; Value : in out Unsigned_8;
-      Is_Write : Boolean);
-   --  Read or write from Mockingboard / Phasor I/O space ($Cxxx)
+   procedure MB_Read
+     (C       : in out Apple2_Base; Mem : not null access RAM_All_Banks;
+      Address :    Unsigned_16; Value : out Unsigned_8);
+   --  Read from Mockingboard / Phasor I/O space ($C400 .. $C5FF)
+
+   procedure MB_Write
+     (C       : in out Apple2_Base; Mem : not null access RAM_All_Banks;
+      Address :    Unsigned_16; Value : Unsigned_8);
+   --  Write to Mockingboard / Phasor I/O space ($C400 .. $C5FF)
 
 end Apple2.Mockingboard;

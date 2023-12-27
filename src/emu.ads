@@ -25,7 +25,7 @@ is
    type Unsigned_4 is mod 16;
    --  4-bit range for case statements over 16-byte ranges
 
-   type Mem_Byte_Range is array (Natural range <>) of Unsigned_8 with
+   type Mem_Byte_Range is array (Unsigned_32 range <>) of Unsigned_8 with
      Alignment => 8;
    --  Type for a range of memory of any size
 

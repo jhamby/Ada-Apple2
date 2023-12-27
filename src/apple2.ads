@@ -326,19 +326,6 @@ is
    end record;
    --  Holds the state for an Apple II variant with devices, except RAM/ROM
 
-   procedure Mem_Access
-     (Mem      : not null access RAM_All_Banks; Bank : RAM_Bank_Index;
-      Address  : Unsigned_16; Value : in out Unsigned_8;
-      Is_Write : Boolean) with
-     Inline;
-   --  Read or write a byte to memory by bank and 16-bit address
-
-   procedure Mem_Read
-     (Mem     : not null access constant RAM_All_Banks; Bank : RAM_Bank_Index;
-      Address : Unsigned_16; Value : out Unsigned_8) with
-     Inline;
-   --  Read or write a byte to memory by bank and 16-bit address
-
    function Is_Apple2 (C : Apple2_Base) return Boolean with
      Inline;
    --  Is this an original Apple II or II Plus?

@@ -31,13 +31,41 @@ is
    Debug_Print_Count : Natural := 0;
    --  Number of debug lines printed in the past second
 
-   --------------------
-   -- Disk_IO_Access --
-   --------------------
+   ------------------
+   -- Disk_IO_Read --
+   ------------------
 
-   procedure Disk_IO_Access
-     (C        : Apple2_Base; Address : Unsigned_16; Value : in out Unsigned_8;
-      Is_Write : Boolean)
+   procedure Disk_IO_Read
+     (C : Apple2_Base; Address : Unsigned_16; Value : out Unsigned_8)
+   is
+      Address_String : String (1 .. 4) := (others => ' ');
+   begin
+      if C.Cycles_Since_Boot - Last_Debug_Print_Time >= 1E6 then
+         --  Reset the debug output counter
+         Last_Debug_Print_Time := C.Cycles_Since_Boot;
+         Debug_Print_Count     := 0;
+      end if;
+
+      if Debug_Print_Count <= 100 then
+         --  debug output
+         Debug_Print_Count := Debug_Print_Count + 1;
+         Put_Hex_Byte
+           (Address_String (1 .. 2), Unsigned_8 (Shift_Right (Address, 8)));
+         Put_Hex_Byte
+           (Address_String (3 .. 4), Unsigned_8 (Address and 16#FF#));
+         Put_Line ("Disk_IO_Read - Address: $" & Address_String);
+      end if;
+
+      --  Real code will go here
+      Value := 0;
+   end Disk_IO_Read;
+
+   -------------------
+   -- Disk_IO_Write --
+   -------------------
+
+   procedure Disk_IO_Write
+     (C : Apple2_Base; Address : Unsigned_16; Value : Unsigned_8)
    is
       Address_String : String (1 .. 4) := (others => ' ');
       Value_String   : String (1 .. 2) := (others => ' ');
@@ -57,12 +85,9 @@ is
            (Address_String (3 .. 4), Unsigned_8 (Address and 16#FF#));
          Put_Hex_Byte (Value_String, Value);
          Put_Line
-           ("Disk_IO_Access - Address: $" & Address_String & " Value: $" &
-            Value_String & " Mode: " & (if Is_Write then "Write" else "Read"));
+           ("Disk_IO_Write - Address: $" & Address_String & " Value: $" &
+            Value_String);
       end if;
-
-      --  Real code will go here
-      Value := 0;
-   end Disk_IO_Access;
+   end Disk_IO_Write;
 
 end Apple2.Disk;

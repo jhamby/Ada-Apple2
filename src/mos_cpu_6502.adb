@@ -55,8 +55,8 @@ is
       Get_Word (C, Mem, 16#FFFC#, Reset_PC);
 
       C.P := (C.P or P_Flag_IRQB_Disable) and not P_Flag_Decimal_Mode;
-      C.PC := Reset_PC;
-      C.SP := C.SP - 3;
+      C.PC          := Reset_PC;
+      C.SP          := C.SP - 3;
       C.Halt_Opcode := 0;
    end CPU_Reset;
 
@@ -1372,9 +1372,17 @@ is
      (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
       Address :        Unsigned_16; Value : out Unsigned_8)
    is
+      Offset : constant Unsigned_16 :=
+        C.Page_Table_Read (Unsigned_8 (Shift_Right (Address, 8)));
    begin
-      Value := 0;  --  make compiler happy
-      Mem_IO_Access (C, Mem, Address, Value, False);
+      if Offset /= 16#FFFF# then
+         Value :=
+           Mem
+             (Shift_Left (Unsigned_32 (Offset), 8) or
+              Unsigned_32 (Address and 16#FF#));
+      else
+         Mem_IO_Read_Special (C, Mem, Address, Value);
+      end if;
    end Mem_IO_Read;
 
    ------------------
@@ -1385,9 +1393,17 @@ is
      (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
       Address :        Unsigned_16; Value : Unsigned_8)
    is
-      Tmp_Value : Unsigned_8 := Value;  --  writable copy of Value
+      Offset : constant Unsigned_16 :=
+        C.Page_Table_Write (Unsigned_8 (Shift_Right (Address, 8)));
    begin
-      Mem_IO_Access (C, Mem, Address, Tmp_Value, True);
+      if Offset /= 16#FFFF# then
+         Mem
+           (Shift_Left (Unsigned_32 (Offset), 8) or
+            Unsigned_32 (Address and 16#FF#)) :=
+           Value;
+      else
+         Mem_IO_Write_Special (C, Mem, Address, Value);
+      end if;
    end Mem_IO_Write;
 
 end MOS_CPU_6502;

@@ -24,7 +24,7 @@ package Apple2.Speaker with
   SPARK_Mode
 is
 
-   procedure Spkr_Toggle (C : in out Apple2_Base; Is_Write : Boolean);
+   procedure Spkr_Toggle (C : in out Apple2_Base);
    --  Toggle the speaker click
 
 end Apple2.Speaker;

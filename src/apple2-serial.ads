@@ -24,9 +24,12 @@ package Apple2.Serial with
   SPARK_Mode
 is
 
-   procedure SSC_Access
-     (C        : Apple2_Base; Address : Unsigned_16; Value : in out Unsigned_8;
-      Is_Write : Boolean);
-   --  Read from or write to the SSC I/O space
+   procedure SSC_Read
+     (C : Apple2_Base; Address : Unsigned_16; Value : out Unsigned_8);
+   --  Read from the SSC I/O space
+
+   procedure SSC_Write
+     (C : Apple2_Base; Address : Unsigned_16; Value : Unsigned_8);
+   --  Write to the SSC I/O space
 
 end Apple2.Serial;
