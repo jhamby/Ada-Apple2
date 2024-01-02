@@ -643,35 +643,35 @@ is
       Mem_IO_Write (C, Mem, Address, Val);
    end Op_AXS;
 
-   procedure Op_BBR
-     (C  : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      PC : in out Unsigned_16; Test_Bit : Unsigned_8)
-   is
-      Address       : Unsigned_16;
-      Distance, Val : Unsigned_8;
-   begin
-      Mode_ZPG (C, Mem, PC, Address);
-      Mode_REL (C, Mem, PC, Distance);
-      Mem_IO_Read (C, Mem, Address, Val);
-      if (Val and Test_Bit) = 0 then
-         Branch_Taken (PC, Distance);
-      end if;
-   end Op_BBR;
+   --  procedure Op_BBR
+   --    (C  : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; PC : in out Unsigned_16; Test_Bit : Unsigned_8)
+   --  is
+   --     Address       : Unsigned_16;
+   --     Distance, Val : Unsigned_8;
+   --  begin
+   --     Mode_ZPG (C, Mem, PC, Address);
+   --     Mode_REL (C, Mem, PC, Distance);
+   --     Mem_IO_Read (C, Mem, Address, Val);
+   --     if (Val and Test_Bit) = 0 then
+   --        Branch_Taken (PC, Distance);
+   --     end if;
+   --  end Op_BBR;
 
-   procedure Op_BBS
-     (C  : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      PC : in out Unsigned_16; Test_Bit : Unsigned_8)
-   is
-      Address       : Unsigned_16;
-      Distance, Val : Unsigned_8;
-   begin
-      Mode_ZPG (C, Mem, PC, Address);
-      Mode_REL (C, Mem, PC, Distance);
-      Mem_IO_Read (C, Mem, Address, Val);
-      if (Val and Test_Bit) /= 0 then
-         Branch_Taken (PC, Distance);
-      end if;
-   end Op_BBS;
+   --  procedure Op_BBS
+   --    (C  : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; PC : in out Unsigned_16; Test_Bit : Unsigned_8)
+   --  is
+   --     Address       : Unsigned_16;
+   --     Distance, Val : Unsigned_8;
+   --  begin
+   --     Mode_ZPG (C, Mem, PC, Address);
+   --     Mode_REL (C, Mem, PC, Distance);
+   --     Mem_IO_Read (C, Mem, Address, Val);
+   --     if (Val and Test_Bit) /= 0 then
+   --        Branch_Taken (PC, Distance);
+   --     end if;
+   --  end Op_BBS;
 
    procedure Op_BCC
      (PC : in out Unsigned_16; Distance : Unsigned_8; Flag_C : Boolean;
@@ -1250,16 +1250,16 @@ is
       Set_NZ (A, Flag_N, Flag_Z);
    end Op_RLA;
 
-   procedure Op_RMB
-     (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      Address :        Unsigned_16; Reset_Bit : Unsigned_8)
-   is
-      Val : Unsigned_8;
-   begin
-      Mem_IO_Read (C, Mem, Address, Val);
-      Val := Val and not Reset_Bit;
-      Mem_IO_Write (C, Mem, Address, Val);
-   end Op_RMB;
+   --  procedure Op_RMB
+   --    (C : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; Address : Unsigned_16; Reset_Bit : Unsigned_8)
+   --  is
+   --     Val : Unsigned_8;
+   --  begin
+   --     Mem_IO_Read (C, Mem, Address, Val);
+   --     Val := Val and not Reset_Bit;
+   --     Mem_IO_Write (C, Mem, Address, Val);
+   --  end Op_RMB;
 
    procedure Op_ROL
      (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
@@ -1559,16 +1559,16 @@ is
       P := P or P_Flag_IRQB_Disable;
    end Op_SEI;
 
-   procedure Op_SMB
-     (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      Address :        Unsigned_16; Set_Bit : Unsigned_8)
-   is
-      Val : Unsigned_8;
-   begin
-      Mem_IO_Read (C, Mem, Address, Val);
-      Val := Val or Set_Bit;
-      Mem_IO_Write (C, Mem, Address, Val);
-   end Op_SMB;
+   --  procedure Op_SMB
+   --    (C : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; Address : Unsigned_16; Set_Bit : Unsigned_8)
+   --  is
+   --     Val : Unsigned_8;
+   --  begin
+   --     Mem_IO_Read (C, Mem, Address, Val);
+   --     Val := Val or Set_Bit;
+   --     Mem_IO_Write (C, Mem, Address, Val);
+   --  end Op_SMB;
 
    procedure Op_STA
      (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;

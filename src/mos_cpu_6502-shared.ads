@@ -244,15 +244,15 @@ is
       Address :        Unsigned_16; A, X : Unsigned_8) with
      Inline;
 
-   procedure Op_BBR
-     (C  : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      PC : in out Unsigned_16; Test_Bit : Unsigned_8) with
-     Inline;
+   --  procedure Op_BBR
+   --    (C  : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; PC : in out Unsigned_16; Test_Bit : Unsigned_8) with
+   --    Inline;
 
-   procedure Op_BBS
-     (C  : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      PC : in out Unsigned_16; Test_Bit : Unsigned_8) with
-     Inline;
+   --  procedure Op_BBS
+   --    (C  : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; PC : in out Unsigned_16; Test_Bit : Unsigned_8) with
+   --    Inline;
 
    procedure Op_BCC
      (PC : in out Unsigned_16; Distance : Unsigned_8; Flag_C : Boolean;
@@ -513,10 +513,10 @@ is
       Flag_N, Flag_Z :    out Boolean) with
      Inline;
 
-   procedure Op_RMB
-     (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      Address :        Unsigned_16; Reset_Bit : Unsigned_8) with
-     Inline;
+   --  procedure Op_RMB
+   --    (C : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; Address : Unsigned_16; Reset_Bit : Unsigned_8) with
+   --    Inline;
 
    procedure Op_ROL
      (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
@@ -590,10 +590,10 @@ is
    procedure Op_SEI (P : in out CPU_6502_P) with
      Inline;
 
-   procedure Op_SMB
-     (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;
-      Address :        Unsigned_16; Set_Bit : Unsigned_8) with
-     Inline;
+   --  procedure Op_SMB
+   --    (C : in out CPU_6502_Series'Class; Mem : not null access
+   --     RAM_All_Banks; Address : Unsigned_16; Set_Bit : Unsigned_8) with
+   --    Inline;
 
    procedure Op_STA
      (C : in out CPU_6502_Series'Class; Mem : not null access RAM_All_Banks;

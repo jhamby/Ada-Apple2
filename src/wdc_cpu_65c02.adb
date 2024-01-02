@@ -79,11 +79,16 @@ is
                PC     := PC + 1;
                Cycles := 2;
 
-            when 16#03# | 16#0B# | 16#13# | 16#1B# | 16#23# | 16#2B# | 16#33#
-              | 16#3B# | 16#43# | 16#4B# | 16#53# | 16#5B# | 16#63# | 16#6B#
-              | 16#73# | 16#7B# | 16#83# | 16#8B# | 16#93# | 16#9B# | 16#A3#
-              | 16#AB# | 16#B3# | 16#BB# | 16#C3# | 16#CB# | 16#D3# | 16#DB#
-              | 16#E3# | 16#EB# | 16#F3# | 16#FB# =>
+            when 16#03# | 16#07# | 16#0B# | 16#0F# | 16#13# | 16#17# | 16#1B#
+              | 16#1F# | 16#23# | 16#27# | 16#2B# | 16#2F# | 16#33# | 16#37#
+              | 16#3B# | 16#3F# | 16#43# | 16#47# | 16#4B# | 16#4F# | 16#53#
+              | 16#57# | 16#5B# | 16#5F# | 16#63# | 16#67# | 16#6B# | 16#6F#
+              | 16#73# | 16#77# | 16#7B# | 16#7F# | 16#83# | 16#87# | 16#8B#
+              | 16#8F# | 16#93# | 16#97# | 16#9B# | 16#9F# | 16#A3# | 16#A7#
+              | 16#AB# | 16#AF# | 16#B3# | 16#B7# | 16#BB# | 16#BF# | 16#C3#
+              | 16#C7# | 16#CB# | 16#CF# | 16#D3# | 16#D7# | 16#DB# | 16#DF#
+              | 16#E3# | 16#E7# | 16#EB# | 16#EF# | 16#F3# | 16#F7# | 16#FB#
+              | 16#FF# =>
                --  one-cycle NOP
                Cycles := 1;
 
@@ -102,10 +107,10 @@ is
                Op_ASL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 5;
 
-            when 16#07# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#01#);
-               Cycles := 5;
+               --  when 16#07# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#01#);
+               --     Cycles := 5;
 
             when 16#08# =>
                Save_Flags (P, Flag_C, Flag_N, Flag_V, Flag_Z, Flag_BCD);
@@ -136,9 +141,9 @@ is
                Op_ASL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#0F# =>
-               Op_BBR (C, Mem, PC, 16#01#);
-               Cycles := 5;
+               --  when 16#0F# =>
+               --     Op_BBR (C, Mem, PC, 16#01#);
+               --     Cycles := 5;
 
             when 16#10# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -170,10 +175,10 @@ is
                Op_ASL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#17# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#02#);
-               Cycles := 5;
+               --  when 16#17# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#02#);
+               --     Cycles := 5;
 
             when 16#18# =>
                Op_CLC (Flag_C);
@@ -203,9 +208,9 @@ is
                Op_ASL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := Cycles + 6;
 
-            when 16#1F# =>
-               Op_BBR (C, Mem, PC, 16#02#);
-               Cycles := 5;
+               --  when 16#1F# =>
+               --     Op_BBR (C, Mem, PC, 16#02#);
+               --     Cycles := 5;
 
             when 16#20# =>
                Mode_ABS (C, Mem, PC, Address);
@@ -232,10 +237,10 @@ is
                Op_ROL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 5;
 
-            when 16#27# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#04#);
-               Cycles := 5;
+               --  when 16#27# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#04#);
+               --     Cycles := 5;
 
             when 16#28# =>
                Op_PLP (C, Mem, SP, P);
@@ -266,9 +271,9 @@ is
                Op_ROL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#2F# =>
-               Op_BBR (C, Mem, PC, 16#04#);
-               Cycles := 5;
+               --  when 16#2F# =>
+               --     Op_BBR (C, Mem, PC, 16#04#);
+               --     Cycles := 5;
 
             when 16#30# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -300,10 +305,10 @@ is
                Op_ROL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#37# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#08#);
-               Cycles := 5;
+               --  when 16#37# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#08#);
+               --     Cycles := 5;
 
             when 16#38# =>
                Op_SEC (Flag_C);
@@ -333,9 +338,9 @@ is
                Op_ROL (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := Cycles + 6;
 
-            when 16#3F# =>
-               Op_BBR (C, Mem, PC, 16#08#);
-               Cycles := 5;
+               --  when 16#3F# =>
+               --     Op_BBR (C, Mem, PC, 16#08#);
+               --     Cycles := 5;
 
             when 16#40# =>
                Op_RTI (C, Mem, SP, P, PC);
@@ -363,10 +368,10 @@ is
                Op_LSR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 5;
 
-            when 16#47# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#10#);
-               Cycles := 5;
+               --  when 16#47# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#10#);
+               --     Cycles := 5;
 
             when 16#48# =>
                Op_PHA (C, Mem, SP, A);
@@ -396,9 +401,9 @@ is
                Op_LSR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#4F# =>
-               Op_BBR (C, Mem, PC, 16#10#);
-               Cycles := 5;
+               --  when 16#4F# =>
+               --     Op_BBR (C, Mem, PC, 16#10#);
+               --     Cycles := 5;
 
             when 16#50# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -431,10 +436,10 @@ is
                Op_LSR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#57# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#20#);
-               Cycles := 5;
+               --  when 16#57# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#20#);
+               --     Cycles := 5;
 
             when 16#58# =>
                Op_CLI (P);
@@ -465,9 +470,9 @@ is
                Op_LSR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := Cycles + 6;
 
-            when 16#5F# =>
-               Op_BBR (C, Mem, PC, 16#20#);
-               Cycles := 5;
+               --  when 16#5F# =>
+               --     Op_BBR (C, Mem, PC, 16#20#);
+               --     Cycles := 5;
 
             when 16#60# =>
                Op_RTS (C, Mem, SP, PC);
@@ -499,10 +504,10 @@ is
                Op_ROR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 5;
 
-            when 16#67# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#40#);
-               Cycles := 5;
+               --  when 16#67# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#40#);
+               --     Cycles := 5;
 
             when 16#68# =>
                Op_PLA (C, Mem, SP, A, Flag_N, Flag_Z);
@@ -538,9 +543,9 @@ is
                Op_ROR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#6F# =>
-               Op_BBR (C, Mem, PC, 16#40#);
-               Cycles := 5;
+               --  when 16#6F# =>
+               --     Op_BBR (C, Mem, PC, 16#40#);
+               --     Cycles := 5;
 
             when 16#70# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -580,10 +585,10 @@ is
                Op_ROR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#77# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_RMB (C, Mem, Address, 16#80#);
-               Cycles := 5;
+               --  when 16#77# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_RMB (C, Mem, Address, 16#80#);
+               --     Cycles := 5;
 
             when 16#78# =>
                Op_SEI (P);
@@ -617,9 +622,9 @@ is
                Op_ROR (C, Mem, Address, Flag_C, Flag_N, Flag_Z);
                Cycles := Cycles + 6;
 
-            when 16#7F# =>
-               Op_BBR (C, Mem, PC, 16#80#);
-               Cycles := 5;
+               --  when 16#7F# =>
+               --     Op_BBR (C, Mem, PC, 16#80#);
+               --     Cycles := 5;
 
             when 16#80# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -646,10 +651,10 @@ is
                Op_STX (C, Mem, Address, X);
                Cycles := 3;
 
-            when 16#87# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#01#);
-               Cycles := 5;
+               --  when 16#87# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#01#);
+               --     Cycles := 5;
 
             when 16#88# =>
                Op_DEY (Y, Flag_N, Flag_Z);
@@ -679,9 +684,9 @@ is
                Op_STX (C, Mem, Address, X);
                Cycles := 4;
 
-            when 16#8F# =>
-               Op_BBS (C, Mem, PC, 16#01#);
-               Cycles := 5;
+               --  when 16#8F# =>
+               --     Op_BBS (C, Mem, PC, 16#01#);
+               --     Cycles := 5;
 
             when 16#90# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -713,10 +718,10 @@ is
                Op_STX (C, Mem, Address, X);
                Cycles := 4;
 
-            when 16#97# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#02#);
-               Cycles := 5;
+               --  when 16#97# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#02#);
+               --     Cycles := 5;
 
             when 16#98# =>
                Op_TYA (Y, A, Flag_N, Flag_Z);
@@ -746,9 +751,9 @@ is
                Op_STZ (C, Mem, Address);
                Cycles := 5;
 
-            when 16#9F# =>
-               Op_BBS (C, Mem, PC, 16#02#);
-               Cycles := 5;
+               --  when 16#9F# =>
+               --     Op_BBS (C, Mem, PC, 16#02#);
+               --     Cycles := 5;
 
             when 16#A0# =>
                Mode_IMM (PC, Address);
@@ -780,10 +785,10 @@ is
                Op_LDX (C, Mem, Address, X, Flag_N, Flag_Z);
                Cycles := 3;
 
-            when 16#A7# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#04#);
-               Cycles := 5;
+               --  when 16#A7# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#04#);
+               --     Cycles := 5;
 
             when 16#A8# =>
                Op_TAY (A, Y, Flag_N, Flag_Z);
@@ -813,9 +818,9 @@ is
                Op_LDX (C, Mem, Address, X, Flag_N, Flag_Z);
                Cycles := 4;
 
-            when 16#AF# =>
-               Op_BBS (C, Mem, PC, 16#04#);
-               Cycles := 5;
+               --  when 16#AF# =>
+               --     Op_BBS (C, Mem, PC, 16#04#);
+               --     Cycles := 5;
 
             when 16#B0# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -847,10 +852,10 @@ is
                Op_LDX (C, Mem, Address, X, Flag_N, Flag_Z);
                Cycles := 4;
 
-            when 16#B7# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#08#);
-               Cycles := 5;
+               --  when 16#B7# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#08#);
+               --     Cycles := 5;
 
             when 16#B8# =>
                Op_CLV (Flag_V);
@@ -880,9 +885,9 @@ is
                Op_LDX (C, Mem, Address, X, Flag_N, Flag_Z);
                Cycles := Cycles + 4;
 
-            when 16#BF# =>
-               Op_BBS (C, Mem, PC, 16#08#);
-               Cycles := 5;
+               --  when 16#BF# =>
+               --     Op_BBS (C, Mem, PC, 16#08#);
+               --     Cycles := 5;
 
             when 16#C0# =>
                Mode_IMM (PC, Address);
@@ -909,10 +914,10 @@ is
                Op_DEC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := 5;
 
-            when 16#C7# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#10#);
-               Cycles := 5;
+               --  when 16#C7# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#10#);
+               --     Cycles := 5;
 
             when 16#C8# =>
                Op_INY (Y, Flag_N, Flag_Z);
@@ -942,9 +947,9 @@ is
                Op_DEC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := 5;
 
-            when 16#CF# =>
-               Op_BBS (C, Mem, PC, 16#10#);
-               Cycles := 5;
+               --  when 16#CF# =>
+               --     Op_BBS (C, Mem, PC, 16#10#);
+               --     Cycles := 5;
 
             when 16#D0# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -971,10 +976,10 @@ is
                Op_DEC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#D7# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#20#);
-               Cycles := 5;
+               --  when 16#D7# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#20#);
+               --     Cycles := 5;
 
             when 16#D8# =>
                Op_CLD (Flag_BCD);
@@ -1005,9 +1010,9 @@ is
                Op_DEC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := Cycles + 6;
 
-            when 16#DF# =>
-               Op_BBS (C, Mem, PC, 16#20#);
-               Cycles := 5;
+               --  when 16#DF# =>
+               --     Op_BBS (C, Mem, PC, 16#20#);
+               --     Cycles := 5;
 
             when 16#E0# =>
                Mode_IMM (PC, Address);
@@ -1040,10 +1045,10 @@ is
                Op_INC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := 5;
 
-            when 16#E7# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#40#);
-               Cycles := 5;
+               --  when 16#E7# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#40#);
+               --     Cycles := 5;
 
             when 16#E8# =>
                Op_INX (X, Flag_N, Flag_Z);
@@ -1079,9 +1084,9 @@ is
                Op_INC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#EF# =>
-               Op_BBS (C, Mem, PC, 16#40#);
-               Cycles := 5;
+               --  when 16#EF# =>
+               --     Op_BBS (C, Mem, PC, 16#40#);
+               --     Cycles := 5;
 
             when 16#F0# =>
                Mode_REL (C, Mem, PC, Distance);
@@ -1116,10 +1121,10 @@ is
                Op_INC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := 6;
 
-            when 16#F7# =>
-               Mode_ZPG (C, Mem, PC, Address);
-               Op_SMB (C, Mem, Address, 16#80#);
-               Cycles := 5;
+               --  when 16#F7# =>
+               --     Mode_ZPG (C, Mem, PC, Address);
+               --     Op_SMB (C, Mem, Address, 16#80#);
+               --     Cycles := 5;
 
             when 16#F8# =>
                Op_SED (Flag_BCD);
@@ -1148,9 +1153,9 @@ is
                Op_INC (C, Mem, Address, Flag_N, Flag_Z);
                Cycles := Cycles + 6;
 
-            when 16#FF# =>
-               Op_BBS (C, Mem, PC, 16#80#);
-               Cycles := 5;
+               --  when 16#FF# =>
+               --     Op_BBS (C, Mem, PC, 16#80#);
+               --     Cycles := 5;
 
          end case;
 
