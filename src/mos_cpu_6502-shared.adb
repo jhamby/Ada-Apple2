@@ -1212,7 +1212,7 @@ is
       Val : Unsigned_8;
    begin
       Pop (C, Mem, SP, Val);
-      P := CPU_6502_P (Val) or (P_Flag_Reserved or P_Flag_BRK_Command);
+      P := CPU_6502_P (Val) or P_Flag_BRK_Command;
    end Op_PLP;
 
    procedure Op_PLX
@@ -1382,7 +1382,7 @@ is
       Val, Val2 : Unsigned_8;
    begin
       Pop (C, Mem, SP, Val);
-      P := CPU_6502_P (Val) or (P_Flag_Reserved or P_Flag_BRK_Command);
+      P := CPU_6502_P (Val) or P_Flag_BRK_Command;
       Pop (C, Mem, SP, Val);
       Pop (C, Mem, SP, Val2);
       PC := Unsigned_16 (Val) or Shift_Left (Unsigned_16 (Val2), 8);

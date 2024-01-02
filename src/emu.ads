@@ -47,6 +47,9 @@ is
    type CPU_Cycle_Count is mod 2**64;
    --  Unsigned 64-bit type increasing from cycle 0 at start of VBlank
 
+   type File_Op_Status_Type is (Success, File_Not_Found, File_Error);
+   --  High-level file I/O success status values
+
    --  Helper functions
 
    procedure Get_Hex_Digit

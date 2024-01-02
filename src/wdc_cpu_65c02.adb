@@ -45,11 +45,11 @@ is
       Flag_C, Flag_N, Flag_V, Flag_Z, Flag_BCD : Boolean;
 
    begin
-      A  := C.A;
-      X  := C.X;
-      Y  := C.Y;
-      SP := C.SP;
+      A  := Unsigned_8 (C.A and 16#FF#);
+      X  := Unsigned_8 (C.X and 16#FF#);
+      Y  := Unsigned_8 (C.Y and 16#FF#);
       P  := C.P;
+      SP := Unsigned_8 (C.SP and 16#FF#);
       PC := C.PC;
 
       Load_Flags (P, Flag_C, Flag_N, Flag_V, Flag_Z, Flag_BCD);
@@ -1163,11 +1163,11 @@ is
       end loop;
 
       Save_Flags (P, Flag_C, Flag_N, Flag_V, Flag_Z, Flag_BCD);
-      C.A  := A;
-      C.X  := X;
-      C.Y  := Y;
-      C.SP := SP;
+      C.A  := Unsigned_16 (A);
+      C.X  := Unsigned_16 (X);
+      C.Y  := Unsigned_16 (Y);
       C.P  := P;
+      C.SP := Unsigned_16 (SP) or 16#0100#;
       C.PC := PC;
    end CPU_Execute_WDC_65C02;
 

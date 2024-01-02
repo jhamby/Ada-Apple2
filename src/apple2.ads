@@ -24,8 +24,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Emu; use Emu;
 
-with Emu.Memory; use Emu.Memory;
-
 with Interfaces; use Interfaces;
 
 with MOS_CPU_6502; use MOS_CPU_6502;
@@ -41,12 +39,13 @@ is
    -- Apple II/II+/IIe/etc. variant types --
    -----------------------------------------
 
-   type Apple_2_Model is (Apple_2, Apple_2_Plus, Apple_2e, Apple_2e_Enhanced);
+   type Apple_2_Model is
+     (Apple_2, Apple_2_Plus, Apple_2e, Apple_2e_Enhanced, Apple_2c, Apple_2gs);
    --  Apple II model: Apple II, II Plus, IIe, or IIe Enhanced (WDC 65C02)
 
    for Apple_2_Model use
-     (Apple_2           => 0, Apple_2_Plus => 1, Apple_2e => 16,
-      Apple_2e_Enhanced => 17);
+     (Apple_2 => 0, Apple_2_Plus => 1, Apple_2e => 16, Apple_2e_Enhanced => 17,
+      Apple_2c => 32, Apple_2gs => 64);
    --  Define to use the same settings values as LinApple
 
    type Video_Type_Type is

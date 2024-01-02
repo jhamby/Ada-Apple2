@@ -30,7 +30,7 @@ is
 
    function Is_Apple2 (C : Apple2_Base) return Boolean is
    begin
-      return C.Settings.Model < Apple_2e;
+      return C.Settings.Model = Apple_2 or C.Settings.Model = Apple_2_Plus;
    end Is_Apple2;
 
    -----------------------

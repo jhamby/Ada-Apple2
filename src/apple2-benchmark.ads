@@ -22,6 +22,8 @@
 
 with Apple2.Memory; use Apple2.Memory;
 
+with Emu.Memory; use Emu.Memory;
+
 package Apple2.Benchmark with
   SPARK_Mode
 is

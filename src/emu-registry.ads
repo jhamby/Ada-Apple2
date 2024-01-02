@@ -51,9 +51,6 @@ is
    type Registry_Type is private;
    --  Private type containing registry filename and hash map
 
-   type File_Op_Status_Type is (Success, File_Not_Found, File_Error);
-   --  High-level file I/O success status values
-
    procedure Initialize (Registry : in out Registry_Type; File_Name : String);
    --  Initialize the registry with the specified file pathname
 

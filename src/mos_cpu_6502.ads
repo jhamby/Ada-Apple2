@@ -38,7 +38,7 @@ is
    P_Flag_IRQB_Disable : constant CPU_6502_P := 16#04#; --  IRQB disable
    P_Flag_Decimal_Mode : constant CPU_6502_P := 16#08#; --  decimal mode
    P_Flag_BRK_Command  : constant CPU_6502_P := 16#10#; --  flags from BRK
-   P_Flag_Reserved     : constant CPU_6502_P := 16#20#; --  always set
+   P_Flag_Mem_Select   : constant CPU_6502_P := 16#20#; --  1=8-bit, 0=16-bit
    P_Flag_Overflow     : constant CPU_6502_P := 16#40#; --  overflow flag
    P_Flag_Negative     : constant CPU_6502_P := 16#80#; --  negative flag
 
@@ -52,15 +52,19 @@ is
 
    type CPU_6502_Series is abstract tagged record
 
-      A, X, Y : Unsigned_8 := 16#FF#;  -- Accumulator, index X, and index Y
+      A, X, Y : Unsigned_16 := 16#FF#;  --  Accumulator, index X, and index Y
 
-      P : CPU_6502_P := 16#FF#;  -- processor status register
+      P : CPU_6502_P := 16#FF#;  --  processor status register
 
-      PC : Unsigned_16 := 16#FFFC#;  -- program counter
+      PC : Unsigned_16 := 16#FFFC#;  --  program counter
 
-      SP : Unsigned_8 := 16#FF#;  -- stack pointer (low byte)
+      SP : Unsigned_16 := 16#01FF#;  --  stack pointer (16-bit for 65c816)
 
-      Halt_Opcode : Unsigned_8 := 0;  -- illegal opcode halt (NMOS 6502 only)
+      D : Unsigned_16 := 0;  --  direct register (65c816)
+
+      PBR, DBR : Unsigned_16 := 0;  --  program and data banks (65c816)
+
+      Halt_Opcode : Unsigned_8 := 0;  --  illegal opcode halt (NMOS 6502 only)
 
       Column_Cycle : Unsigned_16 := 0;
       --  clock cycles since the start of the current scan line, updated
