@@ -62,7 +62,11 @@ is
 
       D : Unsigned_16 := 0;  --  direct register (65c816)
 
-      PBR, DBR : Unsigned_16 := 0;  --  program and data banks (65c816)
+      --  I've discovered that the benchmark results are very sensitive to
+      --  this struct's layout, including the placement of the Halt_Opcode
+      --  field that follows PBR and DBR.
+
+      PBR, DBR : Unsigned_8 := 0;  --  program and data banks (65c816)
 
       Halt_Opcode : Unsigned_8 := 0;  --  illegal opcode halt (NMOS 6502 only)
 
