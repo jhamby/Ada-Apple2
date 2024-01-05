@@ -74,6 +74,18 @@ is
    Extra_ROM_Size : constant := 4 * 1_024;
    --  4K ROM at $C000 (IIe)
 
+   Keyboard_ROM_Size : constant := 2 * 1_024;
+   --  2K keyboard mapping ROM
+
+   Video_ROM_Size_2K : constant := 2 * 1_024;
+   --  original 2K character ROM
+
+   Video_ROM_Size_4K : constant := 4 * 1_024;
+   --  Apple IIe video ROM (US-only)
+
+   Video_ROM_Size_8K : constant := 8 * 1_024;
+   --  Apple IIe video ROM (international charset)
+
    Apple_2e_ROM_Size : constant := Apple_2_ROM_Size + Extra_ROM_Size;
    --  16K ROM (IIe / IIe Enhanced)
 
@@ -322,6 +334,15 @@ is
       Spkr_Num_Clicks : Natural := 0;
       --  Number of speaker clicks seen this frame
 
+      Keyboard_ROM : Mem_Byte_Range (0 .. Keyboard_ROM_Size - 1);
+      --  Keyboard mapping ROM (2K)
+
+      Video_ROM : Mem_Byte_Range (0 .. Video_ROM_Size_8K - 1);
+      --  Character ROM (2K, 4K, or 8K)
+
+      Video_ROM_Size : Unsigned_32;
+      --  Character ROM size
+
    end record;
    --  Holds the state for an Apple II variant with devices, except RAM/ROM
 
@@ -336,6 +357,10 @@ is
    function Cycles_Since_Boot (C : Apple2_Base) return CPU_Cycle_Count with
      Inline;
    --  Returns the number of clock cycles since boot
+
+   procedure Load_ROMs
+     (C : in out Apple2_Base; Status : out File_Op_Status_Type);
+   --  Load the keyboard and character ROM for the selected model
 
    -----------------------------------------------------------
    --  TODO: put these hardcoded strings in a resource file --

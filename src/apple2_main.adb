@@ -156,6 +156,11 @@ begin
       --  Note: the access variable is constant, but the RAM itself is not
    begin
       Init_Apple2 (C, Main_Mem);
+      Load_ROMs (C, File_Op_Status);
+
+      if File_Op_Status /= File_Success then
+         Ada.Text_IO.Put_Line ("error loading ROMs");
+      end if;
 
       --  always run CPU benchmark for now
       CPU_Setup_Benchmark (C, Main_Mem);

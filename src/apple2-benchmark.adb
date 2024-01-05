@@ -28,7 +28,7 @@ with GNAT.Formatted_String; use GNAT.Formatted_String;
 with WDC_CPU_65C02; use WDC_CPU_65C02;
 
 package body Apple2.Benchmark with
-  SPARK_Mode
+  SPARK_Mode => Off
 is
    Short_Opcodes : constant := 22;
    --  number of opcodes with zero-page, immediate, or no operand

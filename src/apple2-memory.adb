@@ -66,7 +66,7 @@ is
    --  Read joystick/paddle buttons and axes in $C060 .. $C06F
 
    procedure IO_Read_C07x
-     (C       : in out Computer; Mem : not null access RAM_All_Banks;
+     (C       : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address :        Unsigned_16; Value : out Unsigned_8) with
      Inline;
    --  Read a byte from soft switches in $C070 .. $C07F
@@ -82,8 +82,8 @@ is
    --  Update bank select switches in $C080 .. $C08F
 
    procedure IO_Read_C1xx
-     (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :        Unsigned_16; Value : in out Unsigned_8) with
+     (C       : in out Computer; Mem : not null access constant RAM_All_Banks;
+      Address :        Unsigned_16; Value : out Unsigned_8) with
      Inline;
    --  Read ROMs or floating bus
 
@@ -453,7 +453,7 @@ is
    ------------------
 
    procedure IO_Read_C07x
-     (C       : in out Computer; Mem : not null access RAM_All_Banks;
+     (C       : in out Computer; Mem : not null access constant RAM_All_Banks;
       Address :        Unsigned_16; Value : out Unsigned_8)
    is
       Offset : constant Unsigned_4 := Unsigned_4 (Address and 16#0F#);
@@ -540,8 +540,8 @@ is
    --  . Enable2 = I/O STROBE' (6502 accesses [$C800..$CFFF])
 
    procedure IO_Read_C1xx
-     (C       : in out Computer; Mem : not null access RAM_All_Banks;
-      Address :        Unsigned_16; Value : in out Unsigned_8)
+     (C       : in out Computer; Mem : not null access constant RAM_All_Banks;
+      Address :        Unsigned_16; Value : out Unsigned_8)
    is
       IO_Strobe : Boolean                  := False;
       Slot      : constant Full_Slot_Range :=
@@ -746,8 +746,8 @@ is
    ---------------------------
 
    procedure Mem_Read_Floating_Bus
-     (C     : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Value :    out Unsigned_8)
+     (C     :     Computer; Mem : not null access constant RAM_All_Banks;
+      Value : out Unsigned_8)
    is
       Address : Unsigned_16;
    begin
@@ -761,8 +761,8 @@ is
    --------------------------------------
 
    procedure Mem_Read_Floating_Bus
-     (C        : in out Computer; Mem : not null access constant RAM_All_Banks;
-      High_Bit :        Boolean; Value : out Unsigned_8)
+     (C        : Computer; Mem : not null access constant RAM_All_Banks;
+      High_Bit : Boolean; Value : out Unsigned_8)
    is
    begin
       Mem_Read_Floating_Bus (C, Mem, Value);

@@ -87,7 +87,7 @@ is
    -- "=" for Reg_Value_Type --
    ----------------------------
 
-   function "=" (Left, Right : Reg_Value_Type) return Boolean is
+   overriding function "=" (Left, Right : Reg_Value_Type) return Boolean is
    begin
       if Left.Data_Type /= Right.Data_Type then
          return False;

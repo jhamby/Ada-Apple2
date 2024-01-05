@@ -102,13 +102,13 @@ is
    --  Update read and write paging tables
 
    procedure Mem_Read_Floating_Bus
-     (C     : in out Computer; Mem : not null access constant RAM_All_Banks;
-      Value :    out Unsigned_8);
+     (C     :     Computer; Mem : not null access constant RAM_All_Banks;
+      Value : out Unsigned_8);
    --  Read floating bus address and advance cycle counter
 
    procedure Mem_Read_Floating_Bus
-     (C        : in out Computer; Mem : not null access constant RAM_All_Banks;
-      High_Bit :        Boolean; Value : out Unsigned_8);
+     (C        : Computer; Mem : not null access constant RAM_All_Banks;
+      High_Bit : Boolean; Value : out Unsigned_8);
    --  Read floating bus address, replacing high bit of result
 
    procedure Mem_Reset

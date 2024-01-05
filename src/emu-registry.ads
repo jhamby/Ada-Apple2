@@ -125,7 +125,7 @@ private
      Inline;
    --  Use built-in String compare for key comparison
 
-   function "=" (Left, Right : Reg_Value_Type) return Boolean with
+   overriding function "=" (Left, Right : Reg_Value_Type) return Boolean with
      Inline;
    --  Equality function for registry values
 
